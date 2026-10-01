@@ -1,0 +1,1053 @@
+<title>準2級マークドリル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-width column that behaves like an answer sheet.
+   Home = mode list grouped by exam section. Quiz = row of marks, question card, numbered bubble choices.
+   Result = score with a 60% pass-line meter. Highlighter yellow is the only accent. */
+:root{
+  --paper:#ECEFF5; --card:#FFFFFF; --ink:#17203A; --ink-2:#4B587A; --line:#CAD2E2;
+  --mark:#FFD84A; --mark-soft:#FFF0A6; --mark-under:#FFD84A; --mark-ink:#17203A;
+  --good:#12805A; --good-bg:#DDF3E9; --bad:#C23B33; --bad-bg:#FBE3E0;
+  --f-jp:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-en:"Atkinson Hyperlegible","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1525; --card:#172038; --ink:#EDF0F8; --ink-2:#A5B1CE; --line:#2B3658;
+    --mark:#FFD84A; --mark-soft:#4A3F0F; --mark-under:#7A6400; --mark-ink:#17203A;
+    --good:#4CD6A0; --good-bg:#12392C; --bad:#FF8279; --bad-bg:#46211F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1525; --card:#172038; --ink:#EDF0F8; --ink-2:#A5B1CE; --line:#2B3658;
+  --mark:#FFD84A; --mark-soft:#4A3F0F; --mark-under:#7A6400; --mark-ink:#17203A;
+  --good:#4CD6A0; --good-bg:#12392C; --bad:#FF8279; --bad-bg:#46211F;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{font-family:var(--f-jp);font-size:16px;line-height:1.7;background:var(--paper);color:var(--ink);
+  padding-inline:16px;padding-block:20px 28px;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+p{margin:0}
+
+/* home */
+.eyebrow{font-size:12px;font-weight:700;color:var(--ink-2);letter-spacing:.08em}
+h1{margin:6px 0 8px;font-size:clamp(30px,9vw,40px);line-height:1.2;font-weight:900;text-wrap:balance}
+.hl{background:linear-gradient(transparent 58%,var(--mark-under) 58%);padding:0 .06em}
+.lead{font-size:15px;color:var(--ink-2);line-height:1.7}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-block:18px 4px;border-block:1.5px solid var(--ink)}
+.stat{padding:10px 4px 8px;text-align:center;min-width:0}
+.stat+.stat{border-left:1px solid var(--line)}
+.stat b{display:block;font-size:26px;line-height:1.25;font-weight:900;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--ink-2)}
+.grp{margin:24px 0 8px;font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--ink-2)}
+.modes{display:flex;flex-direction:column;gap:8px}
+.mode{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;text-align:left;width:100%;
+  padding:12px 14px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;min-height:64px}
+.mode:active{transform:scale(.99)}
+.mode-main{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;min-width:0}
+.mode-name{font-size:18px;font-weight:900}
+.mode-tag{font-size:11px;font-weight:700;padding:0 8px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2)}
+.mode-desc{grid-column:1;font-size:13px;color:var(--ink-2);line-height:1.5}
+.mode-best{grid-column:2;grid-row:1 / span 2;font-size:12px;font-weight:700;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.mode.strong{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.mode.strong .mode-desc,.mode.strong .mode-best,.mode.strong .mode-tag{color:inherit;opacity:.82}
+.mode.strong .mode-tag{border-color:currentColor}
+.mode:disabled{opacity:.55;cursor:default}
+.fine{margin-top:24px;font-size:12px;color:var(--ink-2);line-height:1.8}
+
+/* quiz */
+#quiz{padding-bottom:96px}
+.qtop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.link{background:none;border:0;padding:8px 6px;margin-left:-6px;font-size:14px;color:var(--ink-2);font-weight:700}
+.score{display:flex;gap:10px;align-items:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
+.combo{background:var(--mark);color:var(--mark-ink);padding:0 10px;border-radius:99px;font-size:12px}
+.marks{display:flex;gap:4px;margin-bottom:8px}
+.mk{flex:1;min-width:0;height:10px;border-radius:3px;background:var(--line);border:1.5px solid transparent}
+.mk.cur{background:var(--mark);border-color:var(--ink)}
+.mk.ok{background:var(--good)}
+.mk.ng{background:var(--bad)}
+.tbar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:12px}
+.tfill{height:100%;width:0;background:var(--ink-2)}
+.tfill.late{background:var(--bad)}
+#qbody{display:flex;flex-direction:column;gap:14px;margin-top:12px}
+.qcard{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.kind{align-self:flex-start;font-size:12px;font-weight:900;background:var(--mark);color:var(--mark-ink);padding:1px 10px;border-radius:6px}
+.prompt{font-size:14px;color:var(--ink-2)}
+.jp-hint{font-size:19px;font-weight:700;line-height:1.55}
+.qtext{font-family:var(--f-en),var(--f-jp);font-size:20px;line-height:1.6;overflow-wrap:anywhere}
+.line{display:flex;gap:8px;align-items:baseline}
+.line+.line{margin-top:6px}
+.lt{min-width:0}
+.spk{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--paper);font-family:var(--f-jp);font-size:12px;font-weight:900;display:inline-grid;place-items:center;transform:translateY(-2px)}
+.blank{display:inline-block;min-width:4.5em;height:1.1em;vertical-align:-.2em;background:var(--mark-soft);border-bottom:3px solid var(--mark);border-radius:4px 4px 0 0}
+.blank.filled{height:auto;min-width:0;background:var(--mark);color:var(--mark-ink);border-bottom-color:var(--ink);padding:0 .3em;font-weight:700;vertical-align:baseline}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;text-align:left;width:100%;
+  padding:11px 14px;min-height:56px;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.bub{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink-2);display:grid;place-items:center;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}
+.ctext{font-family:var(--f-en),var(--f-jp);font-size:18px;line-height:1.4;min-width:0;overflow-wrap:anywhere}
+.choice:active:not(:disabled) .bub{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+@media (hover:hover){.choice:hover:not(:disabled){border-color:var(--ink)}}
+.choice:disabled{cursor:default}
+.choice.is-ok{border-color:var(--good);background:var(--good-bg)}
+.choice.is-ok .bub{background:var(--good);border-color:var(--good);color:var(--paper)}
+.choice.is-ng{border-color:var(--bad);background:var(--bad-bg)}
+.choice.is-ng .bub{background:var(--bad);border-color:var(--bad);color:var(--paper)}
+.choice.dim{opacity:.55}
+.fb{border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.fb.ok{background:var(--good-bg)}
+.fb.ng{background:var(--bad-bg)}
+.fb-h{display:flex;justify-content:space-between;align-items:baseline;font-size:20px;font-weight:900}
+.fb.ok .fb-h span:first-child{color:var(--good)}
+.fb.ng .fb-h span:first-child{color:var(--bad)}
+.gain{font-size:14px;font-variant-numeric:tabular-nums}
+.ans{font-size:15px}
+.ans b{font-family:var(--f-en),var(--f-jp);font-size:17px;overflow-wrap:anywhere}
+.why{font-size:15px;line-height:1.75}
+.ja{font-size:14px;color:var(--ink-2)}
+.ja span{display:inline-block;margin-right:8px;font-weight:900;font-size:11px;border:1px solid currentColor;border-radius:4px;padding:0 5px}
+.audio{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.play{display:inline-flex;align-items:center;gap:10px;padding:0 20px;min-height:48px;border-radius:99px;border:0;background:var(--ink);color:var(--paper);font-weight:900;font-size:16px}
+.pi{font-size:14px}
+.note{font-size:13px;color:var(--ink-2)}
+.script{background:var(--paper);border:1px dashed var(--ink-2);border-radius:12px;padding:10px 12px;font-family:var(--f-en),var(--f-jp);font-size:15px;line-height:1.6}
+.sl+.sl{margin-top:4px}
+.sl b{display:inline-block;min-width:1.6em;font-family:var(--f-jp);color:var(--ink-2)}
+.slots{min-height:68px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;padding:10px;border:2px dashed var(--ink-2);border-radius:14px;background:var(--card)}
+.slots-empty{color:var(--ink-2);font-size:14px;align-self:center}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--f-en),var(--f-jp);font-size:18px;padding:6px 14px;min-height:44px;border-radius:10px;border:2px solid var(--line);background:var(--card)}
+.chip.in{background:var(--mark-soft);border-color:var(--mark)}
+.slots.ok{border-style:solid;border-color:var(--good)}
+.slots.ok .chip{background:var(--good-bg);border-color:var(--good)}
+.slots.ng{border-style:solid;border-color:var(--bad)}
+.slots.ng .chip{background:var(--bad-bg);border-color:var(--bad)}
+.order-actions{display:flex;gap:10px}
+.order-actions .btn{flex:1}
+.btn{display:inline-flex;justify-content:center;align-items:center;min-height:50px;padding:0 20px;border-radius:14px;border:2px solid var(--ink);background:transparent;font-weight:900;font-size:16px}
+.btn.pri{background:var(--ink);color:var(--paper)}
+.btn.sm{min-height:44px;font-size:14px;padding:0 14px;border-width:1.5px}
+.btn:disabled{opacity:.4;cursor:default}
+.nextbar{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.nextbar .btn{display:flex;width:100%;max-width:520px;margin:0 auto}
+
+/* result */
+.r-score{font-size:76px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums;margin-top:6px}
+.r-score small{font-size:30px;color:var(--ink-2)}
+.r-msg{font-size:17px;font-weight:700;margin-top:4px}
+.r-sub{font-size:13px;color:var(--ink-2);margin-top:2px;font-variant-numeric:tabular-nums}
+.meter{position:relative;height:14px;border-radius:8px;background:var(--line);margin:22px 0 40px}
+.meter-fill{height:100%;border-radius:8px;background:var(--ink-2)}
+.meter-fill.pass{background:var(--good)}
+.meter-line{position:absolute;left:60%;top:-6px;bottom:-6px;border-left:2px solid var(--ink)}
+.meter-lab{position:absolute;left:60%;top:22px;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap}
+.r-actions{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.rw-h{font-size:14px;font-weight:700;color:var(--ink-2);margin-bottom:8px}
+.rws{display:flex;flex-direction:column;gap:10px}
+.rw{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.rw-k{font-size:11px;font-weight:700;color:var(--ink-2)}
+.rw-q{font-family:var(--f-en),var(--f-jp);font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.rw-a{font-size:14px}
+.rw-a b{font-family:var(--f-en),var(--f-jp);overflow-wrap:anywhere}
+.rw-w{font-size:13px;color:var(--ink-2);line-height:1.7}
+@media (prefers-reduced-motion:no-preference){
+  .choice.is-ok .bub{animation:pop .28s ease-out}
+  @keyframes pop{50%{transform:scale(1.25)}}
+}
+</style>
+
+<div id="app">
+  <section id="home">
+    <p class="eyebrow">非公式・オリジナル問題</p>
+    <h1><span class="hl">準2級</span>マークドリル</h1>
+    <p class="lead">一次試験で6割をとるための練習ゲーム。マークシートのように、番号をタップして答えます。</p>
+    <div class="stats">
+      <div class="stat"><b id="stTotal">0</b><span>とけた問題</span></div>
+      <div class="stat"><b id="stRate">—</b><span>せいかい率</span></div>
+      <div class="stat"><b id="stWrong">0</b><span>まちがいノート</span></div>
+    </div>
+    <div id="modes"></div>
+    <p class="fine">このゲームは英検®の公式ではありません。問題はすべてオリジナルです。試験の形は変わることがあるので、くわしくは英検の公式サイトで見てね。リスニングは、スマホの音声読み上げを使います。</p>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="qtop">
+      <button class="link" id="backBtn" type="button">← やめる</button>
+      <div class="score"><span id="pos"></span><span id="pts"></span><span class="combo" id="combo" hidden></span></div>
+    </div>
+    <div class="marks" id="marks"></div>
+    <div class="tbar" id="tbar" hidden><div class="tfill" id="tfill"></div></div>
+    <div id="qbody"></div>
+  </section>
+
+  <section id="result" hidden></section>
+</div>
+<div class="nextbar" id="nextbar" hidden><button class="btn pri" id="nextBtn" type="button">つぎへ</button></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s){return document.querySelector(s);};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});};
+var shuffle=function(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;};
+
+/* ---------- question data (correct answer is always first in c; choices are shuffled at play time) ---------- */
+var K={v:"語い・大問1",g:"文法・大問1",i:"熟語・大問1",c:"会話の返事",o:"語順パズル",l1:"リスニング第1部",l3:"リスニング第3部"};
+function mc(id,kind,q,ans,wr,ja,why,opt){
+  return Object.assign({id:id,type:"mc",kind:kind,q:q,c:[ans].concat(wr),ja:ja,why:why,fill:/\(\s*\)/.test(q)},opt||{});
+}
+function od(id,jp,tokens,end,why,alts){
+  return {id:id,type:"order",kind:K.o,jp:jp,tokens:tokens,end:end,why:why,alts:alts||[]};
+}
+var F=function(t){return {w:"f",t:t};},M=function(t){return {w:"m",t:t};},N=function(t){return {w:"n",t:t};};
+
+var D={};
+D.vocab=[
+ mc("v1",K.v,"Jun was ( ) about his speech, so he practiced many times.","nervous",["hungry","quiet","sunny"],"ジュンはスピーチのことできんちょうしていたので、何回も練習した。","nervous＝きんちょうしている。スピーチの前はドキドキするから、何回も練習したんだね。"),
+ mc("v2",K.v,"Ken ( ) his umbrella on the train yesterday, so he went back to the station.","left",["lent","kept","held"],"ケンは昨日、電車にかさを置き忘れたので、駅にもどった。","left は leave（置いてくる・置き忘れる）の過去形。『電車に置き忘れた』から駅にもどった、と話がつながるよ。"),
+ mc("v3",K.v,"This museum has many ( ) visitors from other countries, such as China and Brazil.","foreign",["local","empty","usual"],"この博物館には、中国やブラジルなど、外国からのお客さんがたくさん来る。","foreign＝外国の。文に『ほかの国から』と書いてあるのがヒント。local は『その地元の』という意味だよ。"),
+ mc("v4",K.v,"Many students work as ( ) to clean the beach every month.","volunteers",["passengers","tourists","customers"],"毎月、たくさんの生徒がボランティアとして海岸をそうじしている。","volunteer＝ボランティア。自分から進んで人の役に立つ人のことだよ。"),
+ mc("v5",K.v,"I need some ( ) about which university to choose. Can you help me?","advice",["article","balance","culture"],"どの大学をえらぶか、アドバイスがほしいんだ。手伝ってくれる？","advice＝アドバイス。some advice の形でよく出るよ。"),
+ mc("v6",K.v,"It is ( ) to swim in this river because the water moves very fast.","dangerous",["useful","ordinary","wonderful"],"水の流れがとても速いので、この川で泳ぐのは危険だ。","dangerous＝あぶない。水が速いと、泳ぐのは危ないよね。"),
+ mc("v7",K.v,"Please ( ) your seat belt before the plane takes off.","fasten",["invite","protect","borrow"],"飛行機がりくする前に、シートベルトをしめてください。","fasten＝しっかりとめる。fasten a seat belt で『シートベルトをしめる』。"),
+ mc("v8",K.v,"Eri wants to ( ) money for a new bike, so she doesn't buy snacks.","save",["lend","spend","cost"],"エリは新しい自転車のためにお金をためたいので、おかしを買わない。","save＝ためる。spend（使う）だと、おかしを買わない話とぎゃくになっちゃうよ。"),
+ mc("v9",K.v,"This new cell phone is very ( ) because you can use it for many things.","useful",["angry","dull","thirsty"],"この新しい携帯電話は、いろいろなことに使えるのでとても便利だ。","useful＝役に立つ。『いろいろ使える』ので、役に立つんだね。"),
+ mc("v10",K.v,"This restaurant is ( ) for its fresh fish.","famous",["lonely","tight","usual"],"このレストランは新鮮な魚で有名だ。","famous for ～＝『～で有名』。セットで覚えよう。"),
+ mc("v11",K.v,"We have to ( ) the old bridge because it is broken.","repair",["recycle","invite","wonder"],"古い橋がこわれているので、なおさなければならない。","repair＝なおす（修理する）。こわれたものをなおすときに使うよ。"),
+ mc("v12",K.v,"Our teacher ( ) us to use dictionaries during the test.","allowed",["agreed","enjoyed","wished"],"先生は、テスト中に辞書を使うことを私たちに許してくれた。","allow 人 to ～＝『人が～するのを許す』。この形で覚えよう。"),
+ mc("v13",K.v,"He said he saw a ghost, but I can't ( ) it.","believe",["borrow","bring","break"],"彼はおばけを見たと言ったけど、私は信じられない。","believe＝信じる。can't believe で『信じられない』。"),
+ mc("v14",K.v,"There was a ( ) at the airport because of the snow, so our flight left late.","delay",["secret","member","shape"],"雪のせいで空港でおくれが出て、私たちの飛行機は遅れて出発した。","delay＝おくれ。雪で飛行機がおくれた、という話だね。"),
+ mc("v15",K.v,"Mr. Sato has a lot of ( ) in teaching English. He has taught for twenty years.","experience",["language","ticket","century"],"サトウ先生は、英語を教える経験がたくさんある。20年間教えている。","experience＝経験。20年教えている＝経験が多い、とつながるよ。"),
+ mc("v16",K.v,"Please be ( ) when you carry the glasses. They break easily.","careful",["careless","lucky","angry"],"グラスを運ぶときは気をつけてね。かんたんにわれるから。","careful＝気をつける。careless（不注意な）とまちがえないでね。"),
+ mc("v17",K.v,"The soccer game was ( ) because of heavy rain.","canceled",["grown","sent","spent"],"大雨のため、サッカーの試合は中止になった。","cancel＝中止にする。be canceled で『中止になる』。"),
+ mc("v18",K.v,"Emma felt ( ) after she finished her first marathon.","proud",["foreign","rough","silent"],"エマは初めてのマラソンを走り終えて、ほこらしく感じた。","proud＝ほこらしい。やりとげたときの気持ちだよ。"),
+ mc("v19",K.v,"My grandfather lives in a small ( ) in the mountains.","village",["century","market","chance"],"祖父は山の中の小さな村に住んでいる。","village＝村。『小さな』『山の中』と、ぴったり合うね。"),
+ mc("v20",K.v,"This T-shirt is too small. Can I ( ) it for a bigger one?","exchange",["invite","shout","hurry"],"このTシャツは小さすぎます。大きいのと交換できますか？","exchange A for B＝AをBと交換する。お店でよく使うよ。")
+];
+D.grammar=[
+ mc("g1",K.g,"I ( ) in Osaka for five years before I moved to Tokyo.","lived",["live","will live","have lived"],"東京にひっこす前、私は5年間大阪に住んでいた。","ひっこしたのは『過去』のこと。過去の話なので lived（過去形）を使うよ。"),
+ mc("g2",K.g,"My brother has ( ) to Canada three times.","been",["gone","went","going"],"兄（弟）はカナダに3回行ったことがある。","have been to ～＝『～に行ったことがある』。have gone to は『行ってしまって、今いない』で意味がちがうよ。"),
+ mc("g3",K.g,"This song is loved ( ) many young people.","by",["with","for","at"],"この歌は多くの若者に愛されている。","『～される』（受け身）のとき、『～によって』は by を使うよ。"),
+ mc("g4",K.g,"Mary enjoys ( ) pictures of flowers.","taking",["to take","take","took"],"メアリーは花の写真をとるのを楽しんでいる。","enjoy のあとは ～ing の形。enjoy to ～ とは言わないよ。"),
+ mc("g5",K.g,"I'm looking forward to ( ) you next week.","seeing",["see","saw","to see"],"来週あなたに会えるのを楽しみにしています。","look forward to のあとの to は、不定詞の to じゃなくて『前置詞』。だから ～ing（seeing）にするよ。"),
+ mc("g6",K.g,"The girl ( ) is playing the piano is my cousin.","who",["which","whose","what"],"ピアノをひいている女の子は私のいとこです。","『人』のことをくわしく説明するときは who。物のときは which を使うよ。"),
+ mc("g7",K.g,"This is the book ( ) I bought yesterday.","which",["who","where","whose"],"これは私が昨日買った本です。","『物』を説明するので which。（that でもOK）"),
+ mc("g8",K.g,"( ) it was raining, we played soccer outside.","Although",["Because","So","If"],"雨がふっていたけれど、私たちは外でサッカーをした。","Although＝～だけれども。『雨』と『サッカーをした』は反対の内容だよ。"),
+ mc("g9",K.g,"Can you tell me where ( )?","the station is",["is the station","does the station","the station does"],"駅がどこにあるか教えてくれますか？","where のあとは『ふつうの文の順番（主語→動詞）』にするよ。where the station is が正しい形。"),
+ mc("g10",K.g,"Ken is ( ) than his brother.","taller",["tall","tallest","more tall"],"ケンは兄（弟）より背が高い。","than（～より）があるので、くらべる形（taller）を使うよ。"),
+ mc("g11",K.g,"This is ( ) interesting book I have ever read.","the most",["more","most","the more"],"これは私が今までに読んだ中で、いちばんおもしろい本です。","『いちばん～』は the most ～。interesting のように長い言葉は most を使うよ。"),
+ mc("g12",K.g,"I have to ( ) my homework before dinner.","finish",["finishing","to finish","finished"],"夕食の前に宿題を終わらせなければならない。","have to のあとは、動詞のもとの形（finish）だよ。"),
+ mc("g13",K.g,"The window ( ) by Tom yesterday.","was broken",["broke","is broken","has broken"],"その窓は昨日トムにわられた。","『～された』（受け身）で、時は昨日。was ＋ 過去分詞（broken）の形にするよ。"),
+ mc("g14",K.g,"She was too tired ( ) walk any more.","to",["for","so","that"],"彼女はつかれすぎて、もう歩けなかった。","too ～ to …＝『～すぎて…できない』。セットで覚えよう。"),
+ mc("g15",K.g,"If it ( ) tomorrow, we will stay home.","rains",["will rain","rained","raining"],"もし明日雨がふったら、私たちは家にいます。","If のあとは、未来のことでもふつう現在形（rains）を使うよ。will は使わない。"),
+ mc("g16",K.g,"The boy ( ) a red cap is my brother.","wearing",["wears","wore","worn"],"赤いぼうしをかぶっている男の子は私の弟（兄）です。","『～している』と、名前のうしろから説明するときは ～ing（wearing）の形だよ。"),
+ mc("g17",K.g,"I don't know ( ) he will come to the party or not.","whether",["what","which","how"],"彼がパーティーに来るかどうか、私は知らない。","whether ～ or not＝～かどうか。if と同じ意味で使えるよ。")
+];
+D.idiom=[
+ mc("i1",K.i,"Please ( ) your shoes at the door.","take off",["put on","turn on","look for"],"げんかんでくつをぬいでください。","take off＝ぬぐ。反対は put on（着る・はく）だよ。"),
+ mc("i2",K.i,"I'm ( ) my lost key. Have you seen it?","looking for",["looking at","looking after","looking like"],"なくしたかぎをさがしています。見ましたか？","look for＝さがす。look at は『見る』、look after は『世話をする』だよ。"),
+ mc("i3",K.i,"Can you ( ) my dog while I'm away?","look after",["look like","look at","look up"],"私がいない間、犬の世話をしてくれる？","look after＝世話をする。"),
+ mc("i4",K.i,"Tom ( ) the TV because he wanted to study quietly.","turned off",["turned on","turned into","turned around"],"トムは静かに勉強したかったので、テレビを消した。","turn off＝消す。静かに勉強したいなら、テレビは消すよね。"),
+ mc("i5",K.i,"My sister is good ( ) singing.","at",["on","in","with"],"姉（妹）は歌うのが上手だ。","be good at ～＝～が得意。"),
+ mc("i6",K.i,"Let's ( ) the train at Shibuya Station and change to the subway.","get off",["get on","get up","get over"],"渋谷駅で電車をおりて、地下鉄にのりかえよう。","get off＝おりる。のりかえるなら、まず電車をおりるよね。（get on は『のる』）"),
+ mc("i7",K.i,"I'm looking forward ( ) the concert next week.","to",["for","at","of"],"来週のコンサートを楽しみにしています。","look forward to ～＝～を楽しみにする。"),
+ mc("i8",K.i,"( ) up! The train leaves in five minutes.","Hurry",["Give","Cheer","Throw"],"いそいで！電車は5分で出ます。","Hurry up＝いそぐ。5分しかないから、いそがないとね。"),
+ mc("i9",K.i,"Jack was late ( ) school because the bus was late.","for",["at","on","of"],"バスがおくれたので、ジャックは学校にちこくした。","be late for ～＝～におくれる。"),
+ mc("i10",K.i,"We have run ( ) of milk. Can you buy some on your way home?","out",["off","away","down"],"牛乳がなくなっちゃった。帰りに買ってきてくれる？","run out of ～＝～がなくなる。"),
+ mc("i11",K.i,"I ( ) a great time at the party last night.","had",["made","took","got"],"昨夜のパーティーはとても楽しかった。","have a great time＝楽しい時間をすごす。過去の話なので had になるよ。"),
+ mc("i12",K.i,"Bob is interested ( ) Japanese history.","in",["at","of","for"],"ボブは日本の歴史に興味がある。","be interested in ～＝～に興味がある。")
+];
+D.conv=[
+ mc("c1",K.c,"A: Would you like some more cake?\nB: ( )","No, thank you. I'm full.",["Yes, I made it.","It was last week.","I'm sorry I'm late."],"A：ケーキをもう少しいかがですか？ B：いいえ、けっこうです。おなかいっぱいです。","『もっと食べる？』には、いる・いらないで答えるよ。full＝おなかいっぱい。"),
+ mc("c2",K.c,"A: I'm going to the library. Do you want to come?\nB: ( )","Sure. I need to return a book.",["It's on the second floor.","No, I didn't.","I read it yesterday."],"A：図書館に行くんだ。いっしょに来る？ B：うん。本を返さなきゃいけないんだ。","『いっしょに行く？』には、行く・行かないで答えよう。"),
+ mc("c3",K.c,"A: How was your trip to Kyoto?\nB: ( )","It was great. I saw many temples.",["I'll go next week.","It takes two hours.","Yes, I like it."],"A：京都旅行はどうだった？ B：すごくよかった。たくさんお寺を見たよ。","How was ～? は『どうだった？』と感想を聞く質問。感想で答えるよ。"),
+ mc("c4",K.c,"A: Excuse me. Is there a post office near here?\nB: ( )","Yes. Go straight and turn left at the corner.",["No, it's too expensive.","I'll send a letter.","It's seven o'clock."],"A：すみません。この近くに郵便局はありますか？ B：はい。まっすぐ行って、角を左に曲がってください。","場所を聞かれたので、道を教える答えが合うよ。"),
+ mc("c5",K.c,"A: Hello. I'd like to make a reservation for two people at seven.\nB: ( )","Certainly. May I have your name, please?",["Yes, I'm very hungry.","It was delicious.","I don't like fish."],"A：もしもし。7時に2名で予約したいのですが。 B：かしこまりました。お名前をいただけますか？","お店の人の返事。Certainly＝かしこまりました。つぎに名前を聞くのが自然だね。"),
+ mc("c6",K.c,"A: I'm sorry I'm late.\nB: ( )","That's all right. The movie hasn't started yet.",["Thank you for your help.","You're welcome.","Me, too."],"A：おくれてごめん。 B：だいじょうぶ。映画はまだ始まってないよ。","あやまられたら『だいじょうぶだよ』と答えよう。That's all right.＝いいよ。"),
+ mc("c7",K.c,"A: Can I borrow your pen?\nB: ( )","Sure. Here you are.",["Yes, I do.","It's mine.","Because I like it."],"A：ペンをかりてもいい？ B：いいよ。はい、どうぞ。","Can I ～?（～してもいい？）には Sure.（いいよ）で答える。Here you are.＝はい、どうぞ。"),
+ mc("c8",K.c,"A: What's wrong? You look tired.\nB: ( )","I stayed up late last night.",["I'll be there soon.","It was a nice party.","No, I'm a student."],"A：どうしたの？ つかれているみたい。 B：昨日の夜、おそくまで起きていたんだ。","『どうしたの？』には、理由を答えるよ。stay up late＝夜ふかしする。"),
+ mc("c9",K.c,"A: How about going to the beach this weekend?\nB: ( )","Sounds good. I'll bring some drinks.",["I went there last year.","Yes, it is.","It's a sunny day."],"A：今週末、ビーチに行かない？ B：いいね。飲み物を持っていくよ。","How about ～ing?＝～しない？ とさそう言い方。Sounds good.＝いいね。"),
+ mc("c10",K.c,"A: Does this bus go to the stadium?\nB: ( )","No, you need to take Bus Number 5.",["I'd like a ticket.","It's a big game.","At two o'clock."],"A：このバスはスタジアムに行きますか？ B：いいえ、5番のバスにのる必要があります。","『このバスは～に行く？』には、Yes / No で答えるよ。"),
+ mc("c11",K.c,"A: Dad, can you help me with my homework?\nB: ( )","Sure. Which subject do you need help with?",["I finished it yesterday.","You're welcome.","My homework is difficult."],"A：お父さん、宿題を手伝ってくれる？ B：いいよ。どの教科を手伝ってほしいの？","『手伝って』には、まず Sure.（いいよ）。そのあと、どの教科か聞くのが自然だよ。"),
+ mc("c12",K.c,"A: Would you like to have lunch with us?\nB: ( )","I'd love to, but I have to meet my teacher.",["Yes, it was delicious.","You're very welcome.","Here is the menu."],"A：いっしょにお昼を食べませんか？ B：行きたいんですが、先生に会わなければいけなくて。","I'd love to, but ～＝『行きたいけど、～があって…』と、ていねいにことわる言い方。")
+];
+D.order=[
+ od("w1","私は、学生はアルバイトをするべきではないと思います。",["I","think","students","should","not","have","part-time","jobs"],".","『I think ～』で自分の意見を言うのが作文の基本形。should not ～＝～するべきではない。"),
+ od("w2","第一に、学生には勉強する時間が必要です。",["First,","students","need","time","to","study"],".","理由を言うときは First,（第一に）ではじめよう。need time to ～＝～する時間が必要。"),
+ od("w3","毎日運動することは、わたしたちの健康によいです。",["Exercising","every","day","is","good","for","our","health"],".","『～することは』は ～ing で始められるよ。be good for ～＝～によい。"),
+ od("w4","あなたは動物園に行ったことがありますか？",["Have","you","ever","been","to","a","zoo"],"?","Have you ever been to ～?＝～に行ったことがありますか？ Eメールで相手に質問するときに使えるよ。"),
+ od("w5","いっしょに映画を見たいですか？",["Do","you","want","to","watch","a","movie","with","me"],"?","Do you want to ～?＝～したい？（さそうとき）。Eメールの返信で、相手にさそう・質問するときに便利。"),
+ od("w6","私の好きな動物はパンダです。",["My","favorite","animal","is","the","panda"],".","My favorite ～ is …＝わたしの好きな～は…です。the panda の the をわすれずに。"),
+ od("w7","理由は2つあります。",["I","have","two","reasons"],".","理由を言う前の前ぶり。『理由は2つあります』と言ってから、First, Second, とつづけよう。"),
+ od("w8","これらの理由から、私はこれが良い考えだと思います。",["For","these","reasons,","I","think","this","is","a","good","idea"],".","作文のまとめの決まり文句。For these reasons,（これらの理由から）をさいごに書くと、形がととのうよ。"),
+ od("w9","私は先週、友だちと買い物に行きました。",["I","went","shopping","with","my","friend","last","week"],".","went shopping＝買い物に行った。with my friend（友だちと）と last week（先週）は、どちらを先に書いてもOK。",["I went shopping last week with my friend"]),
+ od("w10","宿題を手伝ってくれてありがとう。",["Thank","you","for","helping","me","with","my","homework"],".","Thank you for ～ing＝～してくれてありがとう。help me with ～＝～を手伝う。"),
+ od("w11","あなたに1つ質問があります。",["I","have","one","question","for","you"],".","メールの返信で使えるよ。one question＝1つの質問。"),
+ od("w12","もし晴れたら、私は公園に行きます。",["If","it","is","sunny,","I","will","go","to","the","park"],".","If ～,（もし～なら）の文は、うしろに『ふつうの文』を続けるよ。天気の話は、未来でも is（現在形）を使うよ。")
+];
+D.l1=[
+ mc("l1-1",K.l1,"","No, thanks. I can do it myself.",["Yes, it was easy.","I finished it yesterday."],"女：宿題は終わった？ 男：まだ。夕食のあとにやるよ。 女：そう。手伝いはいる？","さいごの文は『手伝いはいる？』。いる・いらないで答えている返事をえらぼう。",{audio:[F("Hi, Ken. Did you finish your homework?"),M("Not yet. I'll do it after dinner."),F("Okay. Do you need any help?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。（本番は選択肢も耳で聞きます）"}),
+ mc("l1-2",K.l1,"","Sure. The fitting room is over there.",["No, it's twenty dollars.","I don't wear it."],"男：すみません。このTシャツはいくらですか？ 女：20ドルです。 男：着てみてもいいですか？","try on＝ためしに着る。お店の人は『どうぞ、しちゃく室はあちらです』と答えるよ。",{audio:[M("Excuse me. How much is this T-shirt?"),F("It's twenty dollars."),M("Can I try it on?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-3",K.l1,"","How about pizza?",["I ate it yesterday.","At the station."],"女：おなかすいた。何か食べよう。 男：いいね。何がいい？","『何が食べたい？』と聞かれているので、食べ物を答えるよ。How about ～?＝～はどう？",{audio:[F("I'm hungry. Let's get something to eat."),M("Good idea. What do you want?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-4",K.l1,"","Yes, you'd better.",["No, I don't like soccer.","I played yesterday."],"男：お母さん、サッカーをしに行ってくる。 女：待って。もうすぐ雨がふるよ。 男：ほんと？ かさを持っていったほうがいい？","『かさを持っていく？』と聞いているよ。雨がふりそうなので、持っていくのがよい。had better＝～したほうがいい。",{audio:[M("Mom, I'm going out to play soccer."),F("Wait. It's going to rain soon."),M("Really? Should I take an umbrella?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-5",K.l1,"","Yes, a piece of cheesecake, please.",["No, it's too hot.","I'm a student."],"女：サニーカフェへようこそ。ご注文はお決まりですか？ 男：はい、コーヒーをください。 女：何か食べ物はいかがですか？","Would you like ～?＝～はいかがですか？ Yes か No でこたえて、ほしいものを言おう。",{audio:[F("Welcome to Sunny Cafe. Are you ready to order?"),M("Yes, I'll have a coffee, please."),F("Would you like anything to eat?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-6",K.l1,"","I went with my sister.",["At the city hall.","About two hours."],"男：昨夜のコンサートは楽しかった？ 女：うん、最高だった！ 男：だれと行ったの？","Who ～ with? は『だれと？』。人を答えよう。（At は場所、About two hours は時間の長さ）",{audio:[M("Did you enjoy the concert last night?"),F("Yes, it was fantastic!"),M("Who did you go with?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-7",K.l1,"","I used it in the kitchen an hour ago.",["I bought it last year.","It's a new model."],"女：携帯電話が見つからない。 男：最後に使ったのはいつ？","When ～? は『いつ？』。時を答えているものをえらぼう。",{audio:[F("I can't find my phone."),M("When did you use it last?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-8",K.l1,"","A little, but I'm excited too.",["Yes, it's Saturday.","No, I don't know him."],"男：学校のお祭りは来週の土曜日だね。 女：知ってる。ショーで歌うんだ。 男：わあ！ きんちょしてる？","nervous＝きんちょうしている。気持ちを聞かれたので、気持ちで答えているものが正解。",{audio:[M("Our school festival is next Saturday."),F("I know. I'm going to sing in the show."),M("Wow! Are you nervous?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"})
+];
+D.l3=[
+ mc("p1",K.l3,"Why did Tom join the tennis club?","The soccer club was full.",["Ken asked him to.","He likes tennis more than soccer."],"トムはサッカー部に入りたかったが、いっぱいだった。それでテニス部に入った。","but のあとに大事な情報があるよ。『サッカー部がいっぱい』→『So（だから）テニス部に』。So の前が理由だね。",{audio:[N("Tom wanted to join the soccer club, but it was full. So he decided to join the tennis club. He had never played tennis before, but his friend Ken taught him. Now Tom practices every Saturday."),N("Question. Why did Tom join the tennis club?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p2",K.l3,"What did Emi buy for her father?","A wallet.",["A tie.","A watch."],"エミはお父さんの誕生日プレゼントを買いに行き、ネクタイや時計を見たが、けっきょく財布を買った。","『ネクタイと時計を見たけど、finally（けっきょく）財布を買った』。finally のあとが答えだよ。",{audio:[N("Last Sunday, Emi went to a shopping mall with her mother. She wanted to buy a birthday present for her father. She looked at ties and watches, but she finally bought a wallet because her father's wallet was very old."),N("Question. What did Emi buy for her father?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p3",K.l3,"Why did Mika run to school this morning?","The bus was late.",["She woke up early.","She likes running."],"ミカはいつもバスで通学するが、今朝は雨でバスがおくれたので、走って学校へ行った。","because of the rain（雨のせいで）と So（だから）に注目。バスがおくれたから走ったんだね。",{audio:[N("Mika's school starts at eight thirty. Usually she takes a bus, but this morning the bus was late because of the rain. So she ran to school and arrived just in time."),N("Question. Why did Mika run to school this morning?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p4",K.l3,"What will Mr. Green do next month?","Start a basketball club.",["Go back to Canada.","Teach math."],"グリーン先生はカナダ出身の英語の先生。来月、バスケットボール部を始める予定。","『next month（来月）』という言葉を聞きのがさないで。来月、バスケットボール部を始めるよ。",{audio:[N("Mr. Green is a new teacher at our school. He is from Canada and he teaches English. After class, he often plays basketball with students. Next month, he will start a basketball club."),N("Question. What will Mr. Green do next month?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p5",K.l3,"How long did it take to fix the problem?","Twenty minutes.",["Three days.","One hour."],"歯が3日間いたかったが、歯医者へ行った。なおすのに20分かかった。","数字の問題は、ひっかけが多いよ。three days は歯がいたかった期間。なおすのにかかったのは twenty minutes。",{audio:[N("I went to the dentist yesterday. I had a toothache for three days, but I was afraid to go. My mother said, You should go today. So I went, and the dentist found a small problem. It took only twenty minutes to fix."),N("Question. How long did it take to fix the problem?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p6",K.l3,"Why is Lisa's brother going to the store?","They need more sugar.",["They need more eggs.","He wants to buy a present."],"リサと弟はお母さんの誕生日ケーキを作っている。さとうが足りないので、弟は店へ行く。","because they don't have enough sugar（さとうが足りない）が理由。卵と小麦粉はリサが使っているよ。",{audio:[N("Lisa and her brother are making a cake for their mother's birthday. Lisa mixes the eggs and flour, and her brother goes to the store because they don't have enough sugar. They plan to surprise their mother when she gets home at six."),N("Question. Why is Lisa's brother going to the store?")],prompt:"短い話を聞いて、質問にこたえよう。"})
+];
+/* ---------- expanded question stock ---------- */
+D.vocab=D.vocab.concat([
+ mc("v21",K.v,"More than two hundred people ( ) the school festival last year.","attended",["introduced","reduced","suggested"],"去年、200人以上が学校のお祭りに参加した。","attend＝（行事に）出席する・参加する。attend a festival で『お祭りに参加する』。"),
+ mc("v22",K.v,"Let's take a different road to ( ) the heavy traffic.","avoid",["share","invite","describe"],"道路のこんざつをさけるために、別の道を通ろう。","avoid＝さける。こんでいる道をさけるんだね。"),
+ mc("v23",K.v,"This bag is too heavy for me to ( ). Can you help?","carry",["order","spread","trust"],"このかばんは重すぎて、私には運べない。手伝ってくれる？","carry＝運ぶ・持ち歩く。重い荷物を運ぶときに使うよ。"),
+ mc("v24",K.v,"My brother likes to ( ) old coins from many countries.","collect",["reply","avoid","warn"],"弟（兄）はいろいろな国の古いコインを集めるのが好きだ。","collect＝集める。しゅみで集めるときによく使うよ。"),
+ mc("v25",K.v,"If you ( ) the two phones, you will see that this one is cheaper.","compare",["decide","mention","create"],"2つの携帯電話をくらべると、こちらのほうが安いとわかるよ。","compare＝くらべる。2つのものを見くらべるときに使うよ。"),
+ mc("v26",K.v,"If you have any questions, please ( ) us by e-mail.","contact",["attend","avoid","solve"],"もし質問があれば、Eメールで私たちに連絡してください。","contact＝連絡をとる。contact 人 で『人に連絡する』。（with はつけないよ）"),
+ mc("v27",K.v,"It was raining hard, but the players decided to ( ) the game.","continue",["borrow","spread","wonder"],"雨が強くふっていたが、選手たちは試合を続けることにした。","continue＝続ける。やめずにそのまま続けるときに使うよ。"),
+ mc("v28",K.v,"The artist wants to ( ) a new kind of music using computers.","create",["avoid","attend","collect"],"その芸術家は、コンピューターを使って新しい種類の音楽をつくりたいと思っている。","create＝つくり出す。今までにないものを新しくつくるときに使うよ。"),
+ mc("v29",K.v,"The post office will ( ) your package tomorrow morning.","deliver",["translate","promise","contact"],"郵便局が明日の朝、あなたの荷物を配達します。","deliver＝届ける・配達する。"),
+ mc("v30",K.v,"Can you ( ) the man you saw? What did he look like?","describe",["compare","carry","waste"],"あなたが見た男の人のことを説明できますか？ どんな見た目でしたか？","describe＝（ようすを）言葉で説明する。人や物のとくちょうを話すときに使うよ。"),
+ mc("v31",K.v,"Scientists ( ) a new kind of fish deep in the ocean last year.","discovered",["delivered","attended","avoided"],"科学者たちは去年、深い海で新しい種類の魚を発見した。","discover＝発見する。今まで知られていなかったものを見つけるときに使うよ。"),
+ mc("v32",K.v,"Please take off your shoes before you ( ) the room.","enter",["reply","spread","refuse"],"部屋に入る前に、くつをぬいでください。","enter＝～に入る。enter のあとに in や into はいらないよ。"),
+ mc("v33",K.v,"I didn't understand the rule, so my friend ( ) it to me.","explained",["trusted","wasted","reduced"],"ルールがわからなかったので、友だちが説明してくれた。","explain 物 to 人＝人に物を説明する。『わからなかった』ので説明してもらったんだね。"),
+ mc("v34",K.v,"I want to ( ) my English, so I'm going to study every day.","improve",["attend","collect","carry"],"英語が上達するように、毎日勉強するつもりだ。","improve＝よくする・上達させる。"),
+ mc("v35",K.v,"Let me ( ) my friend Mike to you. He just moved here.","introduce",["carry","waste","spread"],"友だちのマイクをしょうかいさせて。彼はここに引っこしてきたばかりなんだ。","introduce A to B＝AをBにしょうかいする。はじめて会う人どうしを会わせるときに使うよ。"),
+ mc("v36",K.v,"Our class will ( ) a party for the new students.","organize",["collect","avoid","describe"],"私たちのクラスは、新入生のためにパーティーを開く（準備する）予定だ。","organize＝（行事などを）計画して準備する。パーティーやイベントを開くときに使うよ。"),
+ mc("v37",K.v,"Don't ( ) the surprise party to Jane. It's a secret.","mention",["attend","deliver","create"],"ジェーンにサプライズパーティーのことは言わないで。ひみつなんだ。","mention＝（ちょっと）話にだす。ひみつなので、話題にしないでね、という意味になるよ。"),
+ mc("v38",K.v,"The store ( ) a 20% discount to students on Mondays.","offers",["spreads","contacts","wastes"],"その店は、毎週月曜日に学生へ20%の割引を出している。","offer＝提供する・さし出す。割引やサービスを出すときに使うよ。"),
+ mc("v39",K.v,"You should ( ) the speech many times before the contest.","practice",["compare","reply","refuse"],"コンテストの前に、スピーチを何回も練習したほうがいいよ。","practice＝練習する。"),
+ mc("v40",K.v,"Wearing a mask can help ( ) the spread of colds.","prevent",["attend","deliver","collect"],"マスクをすると、かぜが広がるのをふせぐのに役立つ。","prevent＝ふせぐ。よくないことが起きないようにするときに使うよ。"),
+ mc("v41",K.v,"I ( ) I will call you as soon as I get home.","promise",["describe","wonder","avoid"],"家に着いたらすぐ電話すると約束するよ。","promise＝約束する。I promise (that) ～ で『～すると約束する』。"),
+ mc("v42",K.v,"Tom was happy to ( ) a letter from his grandmother.","receive",["introduce","reduce","spread"],"トムはおばあさんから手紙を受け取ってうれしかった。","receive＝受け取る。"),
+ mc("v43",K.v,"Which restaurant do you ( )? I want to try something new.","recommend",["continue","spread","contact"],"どのレストランがおすすめ？ 何か新しいものを食べてみたいんだ。","recommend＝すすめる。おすすめを聞くときに使うよ。"),
+ mc("v44",K.v,"We should ( ) the amount of plastic we use every day.","reduce",["increase","attend","deliver"],"毎日使うプラスチックの量をへらすべきだ。","reduce＝へらす。反対の increase（ふやす）とセットで覚えよう。"),
+ mc("v45",K.v,"The boy was angry and ( ) to eat his vegetables.","refused",["offered","wondered","promised"],"男の子はおこって、野菜を食べるのをこばんだ。","refuse to ～＝～することをことわる。angry（おこって）から、いやがる気持ちがわかるね。"),
+ mc("v46",K.v,"This photo ( ) me of our trip to Okinawa.","reminds",["replies","reduces","recommends"],"この写真を見ると、沖縄旅行を思い出す。","remind 人 of ～＝人に～を思い出させる。This photo reminds me of ～ の形でよく出るよ。")
+]);
+
+D.vocab=D.vocab.concat([
+ mc("v47",K.v,"The battery is old. We need to ( ) it with a new one.","replace",["compare","explain","attend"],"電池が古くなったね。新しいものと交換しなきゃ。","replace A with B＝AをBと取りかえる。"),
+ mc("v48",K.v,"Please ( ) to this e-mail by tomorrow.","reply",["enter","deliver","create"],"明日までにこのEメールに返信してください。","reply to ～＝～に返事をする。"),
+ mc("v49",K.v,"I ( ) the Internet for information about the festival.","searched",["improved","carried","attended"],"お祭りの情報をさがして、インターネットを調べた。","search ～ for …＝…をさがして～を調べる。"),
+ mc("v50",K.v,"Sam and his sister ( ) a room, so they often talk at night.","share",["prevent","remind","avoid"],"サムとお姉さん（妹）は部屋を共有しているので、よく夜に話す。","share＝分け合う・共有する。ひとつの部屋をいっしょに使うんだね。"),
+ mc("v51",K.v,"Nobody could ( ) the math problem, so the teacher gave a hint.","solve",["mention","attend","receive"],"だれもその数学の問題をとけなかったので、先生がヒントを出した。","solve＝（問題を）とく・解決する。"),
+ mc("v52",K.v,"The news ( ) quickly through the school.","spread",["improved","attended","refused"],"そのニュースは学校中にすぐに広まった。","spread＝広がる・広まる。うわさやニュースが広がるときに使うよ。"),
+ mc("v53",K.v,"I ( ) that we meet at the station at ten.","suggest",["describe","deliver","enter"],"10時に駅で会うことを提案するよ。","suggest＝提案する。I suggest that ～ で『～してはどうかな』という感じだよ。"),
+ mc("v54",K.v,"My parents always ( ) my dream of becoming a doctor.","support",["collect","spread","reduce"],"両親は、医者になるという私の夢をいつも応援してくれる。","support＝支える・応援する。"),
+ mc("v55",K.v,"Can you ( ) this English letter into Japanese for me?","translate",["deliver","spread","refuse"],"この英語の手紙を日本語に訳してくれる？","translate A into B＝AをBに翻訳する。"),
+ mc("v56",K.v,"I ( ) Ken. He always keeps his promises.","trust",["avoid","reduce","refuse"],"ケンのことは信頼している。彼はいつも約束を守るからね。","trust＝信頼する。約束を守る人を信じるんだね。"),
+ mc("v57",K.v,"Don't ( ) water. Turn off the tap when you brush your teeth.","waste",["share","attend","create"],"水をむだにしないで。歯をみがくときは、じゃ口を閉めよう。","waste＝むだにする。"),
+ mc("v58",K.v,"The sign ( ) people not to swim here because of sharks.","warns",["shares","replaces","collects"],"サメがいるので、ここで泳がないように、その看板は人々に注意している。","warn 人 not to ～＝人に～しないよう注意する。"),
+ mc("v59",K.v,"The view from the top of the mountain was ( ). We took many pictures.","amazing",["empty","tight","rough"],"山の頂上からのながめはすばらしかった。たくさん写真をとった。","amazing＝おどろくほどすばらしい。"),
+ mc("v60",K.v,"This sofa is very ( ). I could sleep on it all day.","comfortable",["terrible","dangerous","necessary"],"このソファーはとても心地よい。一日中ねていられそう。","comfortable＝心地よい。すわり心地やねごこちがよいときに使うよ。"),
+ mc("v61",K.v,"Children are often ( ) about everything and ask many questions.","curious",["exhausted","polite","rare"],"子どもはいろいろなことに興味しんしんで、たくさん質問することが多い。","curious＝知りたがる・好奇心が強い。curious about ～＝～に興味がある。"),
+ mc("v62",K.v,"Bob and his twin brother look the same, but their personalities are very ( ).","different",["popular","private","sudden"],"ボブと双子の弟は見た目が同じだが、性格はぜんぜんちがう。","different＝ちがう。『見た目は同じだけど（but）』から、反対の内容だとわかるね。"),
+ mc("v63",K.v,"Emi was ( ) when she heard that the concert was canceled.","disappointed",["excited","proud","generous"],"エミはコンサートが中止になったと聞いて、がっかりした。","disappointed＝がっかりした。楽しみにしていたことが中止になったからだね。"),
+ mc("v64",K.v,"I was ( ) when I called my teacher 'Mom' by mistake.","embarrassed",["generous","familiar","comfortable"],"まちがえて先生を『お母さん』と呼んでしまって、はずかしかった。","embarrassed＝はずかしい。人前で失敗したときの気持ちだよ。"),
+ mc("v65",K.v,"After running the marathon, Jim was completely ( ) and fell asleep at once.","exhausted",["curious","polite","wise"],"マラソンを走り終えて、ジムはへとへとになり、すぐにねてしまった。","exhausted＝ひどくつかれた。tired よりもっとつかれた感じだよ。"),
+ mc("v66",K.v,"This song sounds ( ). I think I've heard it before.","familiar",["private","unusual","valuable"],"この歌は聞きおぼえがある。前に聞いたことがあると思う。","familiar＝よく知っている・聞きおぼえがある。"),
+ mc("v67",K.v,"I bought some ( ) vegetables at the farmers' market this morning.","fresh",["shy","sudden","private"],"今朝、農家の直売所で新鮮な野菜を買った。","fresh＝新鮮な。とれたての野菜や魚に使うよ。"),
+ mc("v68",K.v,"My uncle is very ( ). He often gives gifts to everyone.","generous",["shy","strict","sleepy"],"おじさんはとても気前がいい。よくみんなにプレゼントをくれる。","generous＝気前がいい・心が広い。"),
+ mc("v69",K.v,"The dog was ( ). It was bigger than my little brother!","huge",["tiny","quiet","ready"],"その犬はとても大きかった。私の弟よりも大きかった！","huge＝とても大きい。tiny（とても小さい）の反対だよ。"),
+ mc("v70",K.v,"It is ( ) to finish this work in one hour. We need at least three.","impossible",["natural","familiar","comfortable"],"この仕事を1時間で終えるのは不可能だ。少なくとも3時間はいる。","impossible＝不可能な。反対は possible（可能な）だよ。"),
+ mc("v71",K.v,"Mr. Ito is always ( ) to everyone. He says 'please' and 'thank you.'","polite",["empty","rare","tight"],"イトウさんは、だれにもいつもていねいだ。『お願いします』や『ありがとう』を言う。","polite＝礼ぎ正しい・ていねいな。"),
+ mc("v72",K.v,"This cafe is ( ) with young people, so it is always full.","popular",["private","sudden","gentle"],"このカフェは若い人に人気があるので、いつもこんでいる。","popular with ～＝～に人気がある。")
+]);
+
+D.vocab=D.vocab.concat([
+ mc("v73",K.v,"This is a ( ) party, so only family members can come.","private",["amazing","popular","fresh"],"これは内輪のパーティーなので、家族だけが来られる。","private＝個人的な・内輪の。"),
+ mc("v74",K.v,"Please be ( ) in the library. Other people are studying.","quiet",["huge","fresh","generous"],"図書館ではしずかにしてね。ほかの人が勉強しているよ。","quiet＝しずかな。"),
+ mc("v75",K.v,"Pandas are ( ) animals. Only a few of them live in the wild.","rare",["common","generous","polite"],"パンダはめずらしい動物だ。野生にはほんの少ししかいない。","rare＝めずらしい・数が少ない。反対は common（ふつうの）だよ。"),
+ mc("v76",K.v,"I stayed up late last night, so I feel ( ) this morning.","sleepy",["huge","rare","polite"],"昨日の夜ふかしをしたので、今朝はねむい。","sleepy＝ねむい。"),
+ mc("v77",K.v,"Our coach is very ( ). He never lets us be late for practice.","strict",["generous","curious","sleepy"],"コーチはとてもきびしい。練習におくれることをぜったいに許さない。","strict＝きびしい。"),
+ mc("v78",K.v,"There was a ( ) noise in the dark, and everyone jumped.","sudden",["private","familiar","comfortable"],"暗やみで急に物音がして、みんなとびあがった。","sudden＝とつぜんの。"),
+ mc("v79",K.v,"Many people wear ( ) clothes called kimono at the New Year.","traditional",["sleepy","strict","exhausted"],"お正月には、着物という伝統的な服を着る人が多い。","traditional＝伝統的な。"),
+ mc("v80",K.v,"It is ( ) for it to snow in Okinawa. People were very surprised.","unusual",["natural","common","comfortable"],"沖縄で雪がふるのはめずらしい。人々はとてもおどろいた。","unusual＝ふつうではない・めずらしい。"),
+ mc("v81",K.v,"This old painting is very ( ). It is worth millions of dollars.","valuable",["familiar","sleepy","quiet"],"この古い絵はとても高価だ。何百万ドルもの価値がある。","valuable＝価値が高い・貴重な。"),
+ mc("v82",K.v,"My grandfather is ( ). He always gives me good advice.","wise",["huge","sleepy","fresh"],"祖父はかしこい。いつもよいアドバイスをくれる。","wise＝かしこい・思慮深い。"),
+ mc("v83",K.v,"There was a car ( ) near the school, but nobody was hurt.","accident",["festival","habit","meeting"],"学校の近くで自動車事故があったが、けが人はいなかった。","accident＝事故。car accident で『自動車事故』。"),
+ mc("v84",K.v,"I have an ( ) with the dentist at three o'clock.","appointment",["audience","ceremony","contest"],"3時に歯医者さんの予約がある。","appointment＝（会う・診てもらう）約束・予約。病院の予約などに使うよ。"),
+ mc("v85",K.v,"The ( ) clapped loudly when the actors came on stage.","audience",["appointment","charity","habit"],"俳優たちがステージに出てくると、観客は大きな拍手をした。","audience＝観客。劇やコンサートを見る人たちのことだよ。"),
+ mc("v86",K.v,"Eating vegetables has many health ( ).","benefits",["accidents","habits","contests"],"野菜を食べることには、健康によいことがたくさんある。","benefit＝利点・よいところ。health benefits で『健康によい効果』。"),
+ mc("v87",K.v,"The graduation ( ) will be held in the gym next Friday.","ceremony",["habit","damage","diet"],"卒業式は、来週の金曜日に体育館で行われる。","ceremony＝式・儀式。graduation ceremony＝卒業式。"),
+ mc("v88",K.v,"They sold cookies to raise money for ( ).","charity",["damage","schedule","tournament"],"彼らは慈善のためのお金を集めようと、クッキーを売った。","charity＝慈善（めぐまれない人を助ける活動）。"),
+ mc("v89",K.v,"The ( ) in Hokkaido is cold in winter and cool in summer.","climate",["method","pollution","uniform"],"北海道の気候は、冬は寒く、夏はすずしい。","climate＝気候。長い間のふつうの天気のようすだよ。weather（その日の天気）とのちがいに注意。"),
+ mc("v90",K.v,"Lisa won first prize in the speech ( ) last week.","contest",["climate","appointment","benefit"],"リサは先週、スピーチコンテストで1位になった。","contest＝コンテスト・競争。"),
+ mc("v91",K.v,"It took a lot of ( ) to speak in front of the whole school.","courage",["damage","benefit","pollution"],"全校生徒の前で話すのには、とても勇気がいった。","courage＝勇気。"),
+ mc("v92",K.v,"A large ( ) gathered in front of the station to see the famous singer.","crowd",["custom","habit","ceremony"],"有名な歌手を見ようと、駅の前に大勢の人が集まった。","crowd＝人ごみ・群衆。"),
+ mc("v93",K.v,"In Japan, it is a ( ) to take off your shoes when entering a house.","custom",["benefit","journey","contest"],"日本では、家に入るときにくつをぬぐのがならわしだ。","custom＝習慣・しきたり。その国や地域の昔からのならわしのことだよ。"),
+ mc("v94",K.v,"The storm caused a lot of ( ) to the village.","damage",["courage","charity","benefit"],"あらしは、村に大きな被害をもたらした。","damage＝被害・そんがい。cause damage で『被害をあたえる』。"),
+ mc("v95",K.v,"Our final ( ) is Paris, but we will stop in London first.","destination",["custom","method","habit"],"私たちの最終目的地はパリだが、まずロンドンに立ちよる。","destination＝目的地。"),
+ mc("v96",K.v,"This shirt was 30% off. I got a big ( ).","discount",["effort","damage","signal"],"このシャツは30%引きだった。大きな割引を受けた。","discount＝割引。"),
+ mc("v97",K.v,"Sara made a great ( ) to learn English, and she passed the test.","effort",["damage","custom","habit"],"サラは英語を学ぶために大きな努力をして、テストに合格した。","effort＝努力。make an effort で『努力する』。"),
+ mc("v98",K.v,"In an ( ), call 119 for an ambulance.","emergency",["ceremony","interview","exhibition"],"緊急のときは、救急車のために119番に電話してください。","emergency＝緊急事態。in an emergency＝緊急のとき。"),
+ mc("v99",K.v,"We saw an ( ) of modern art at the museum.","exhibition",["emergency","appointment","contest"],"私たちは美術館で現代アートの展覧会を見た。","exhibition＝展覧会。"),
+ mc("v100",K.v,"She is an ( ) on birds. She knows everything about them.","expert",["audience","accident","interview"],"彼女は鳥の専門家だ。鳥のことは何でも知っている。","expert＝専門家。expert on ～＝～の専門家。")
+]);
+
+D.grammar=D.grammar.concat([
+ mc("g18",K.g,"I have lived in this town ( ) 2015.","since",["for","from","during"],"私は2015年からずっとこの町に住んでいる。","since＋時点（2015年など）＝『～からずっと』。for は『～の間』と長さを言うときに使うよ。"),
+ mc("g19",K.g,"My sister has been studying English ( ) three years.","for",["since","from","by"],"姉（妹）は3年間、英語を勉強している。","for＋期間（three years）＝『～の間』。"),
+ mc("g20",K.g,"I ( ) already finished my homework.","have",["am","was","did"],"私はもう宿題を終えてしまった。","already（もう）と過去分詞（finished）が来ているので、have ＋ 過去分詞の『現在完了』にするよ。"),
+ mc("g21",K.g,"Have you ever ( ) sushi?","eaten",["ate","eat","eating"],"あなたは今までにすしを食べたことがありますか？","Have you ever ～?＝～したことがありますか？ ever のあとは過去分詞（eaten）。"),
+ mc("g22",K.g,"I ( ) a bath when the phone rang.","was taking",["take","have taken","am taking"],"電話が鳴ったとき、私はおふろに入っていた。","『電話が鳴ったとき』は過去の話で、そのとき『している最中』だったので、was ～ing（過去進行形）を使うよ。"),
+ mc("g23",K.g,"Tom ( ) TV when his mother came home.","was watching",["watches","is watching","has watched"],"お母さんが帰ってきたとき、トムはテレビを見ていた。","帰ってきたとき（過去）に『見ている最中』だったので、was watching（過去進行形）。"),
+ mc("g24",K.g,"We ( ) to the zoo next Sunday.","will go",["went","have gone","were going"],"私たちは今度の日曜日に動物園に行くつもりだ。","next Sunday（今度の日曜日）は未来のこと。will ＋ 動詞のもとの形で未来を表すよ。"),
+ mc("g25",K.g,"( ) you help me with this box, please?","Could",["Are","Have","Does"],"この箱を運ぶのを手伝っていただけますか？","Could you ～?＝～していただけますか？（ていねいなお願い）。"),
+ mc("g26",K.g,"Ms. Brown ( ) English to us last year.","taught",["learned","studied","told"],"ブラウン先生は去年、私たちに英語を教えてくれた。","teach の過去形は taught。learn（学ぶ）とまちがえやすいよ。"),
+ mc("g27",K.g,"English ( ) in many countries.","is spoken",["speaks","is speaking","spoke"],"英語は多くの国で話されている。","『話されている』（受け身）は is ＋ 過去分詞（spoken）。"),
+ mc("g28",K.g,"This room ( ) every day by the students.","is cleaned",["cleans","is cleaning","cleaned"],"この部屋は毎日、生徒たちによってそうじされる。","『そうじされる』（受け身）なので is ＋ 過去分詞（cleaned）。"),
+ mc("g29",K.g,"The Tokyo Skytree ( ) in 2012.","was built",["built","is built","has built"],"東京スカイツリーは2012年に建てられた。","2012年（過去）に『建てられた』。was ＋ 過去分詞（built）の形だよ。"),
+ mc("g30",K.g,"I was ( ) a present by my aunt.","given",["give","gave","giving"],"私はおばからプレゼントをもらった。","I was given ～＝～をあたえられた（もらった）。be ＋ 過去分詞（given）。"),
+ mc("g31",K.g,"My dream is ( ) a doctor.","to be",["be","been","am"],"私の夢は医者になることだ。","My dream is to ～＝私の夢は～することだ。to ＋ 動詞のもとの形にするよ。"),
+ mc("g32",K.g,"She decided ( ) abroad after graduating.","to study",["studying","study","studied"],"彼女は卒業後に外国で勉強することに決めた。","decide to ～＝～することに決める。decide のあとは to ＋ 動詞。"),
+ mc("g33",K.g,"I want you ( ) me tomorrow.","to call",["call","calling","called"],"明日、私に電話してほしいな。","want 人 to ～＝人に～してほしい。"),
+ mc("g34",K.g,"My mother told me ( ) the door.","to close",["close","closing","closed"],"お母さんは私にドアを閉めるように言った。","tell 人 to ～＝人に～するように言う。"),
+ mc("g35",K.g,"Stop ( ) so loud! The baby is sleeping.","talking",["to talk","talk","talked"],"そんなに大きな声で話すのをやめて！ 赤ちゃんがねているよ。","stop ～ing＝～するのをやめる。stop to ～ だと『～するために立ち止まる』で、意味がちがうよ。"),
+ mc("g36",K.g,"He is good at ( ) pictures.","drawing",["draw","to draw","drew"],"彼は絵をかくのが得意だ。","前置詞（at）のあとは ～ing の形にするよ。"),
+ mc("g37",K.g,"It is important ( ) breakfast every day.","to eat",["eat","eating","ate"],"毎日朝ごはんを食べることは大切だ。","It is ～ to …＝…することは～だ。to ＋ 動詞のもとの形。"),
+ mc("g38",K.g,"I'm ( ) tired to do my homework tonight.","too",["so","very","enough"],"私はつかれすぎていて、今夜は宿題ができない。","too ～ to …＝～すぎて…できない。so や very だと、あとの to ～ がつながらないよ。"),
+ mc("g39",K.g,"He is tall ( ) to reach the shelf.","enough",["too","so","very"],"彼は、たなに手がとどくほど背が高い。","～ enough to …＝…するのに十分～。enough は形容詞（tall）のうしろにおくよ。"),
+ mc("g40",K.g,"This soup is ( ) hot that I can't eat it.","so",["too","very","such"],"このスープはとても熱くて、食べられない。","so ～ that …＝とても～なので…。")
+]);
+
+D.grammar=D.grammar.concat([
+ mc("g41",K.g,"This bag is ( ) than that one.","cheaper",["cheap","cheapest","more cheap"],"このかばんは、あれより安い。","than があるので、くらべる形。cheap は短い言葉なので ～er（cheaper）にするよ。"),
+ mc("g42",K.g,"Mt. Fuji is the ( ) mountain in Japan.","highest",["higher","high","more high"],"富士山は日本でいちばん高い山だ。","the ＋ ～est＝いちばん～。"),
+ mc("g43",K.g,"Soccer is ( ) popular than baseball in this country.","more",["most","much","very"],"この国では、サッカーは野球より人気がある。","popular のような長い言葉は、more ～ than … でくらべるよ。"),
+ mc("g44",K.g,"This is the ( ) movie I have ever seen.","best",["better","good","well"],"これは今までに見た中で最高の映画だ。","good の最上級は best。（good - better - best）"),
+ mc("g45",K.g,"Ken can run as ( ) as his brother.","fast",["faster","fastest","more fast"],"ケンはお兄さんと同じくらい速く走れる。","as ～ as …＝…と同じくらい～。まん中の言葉は、ふつうの形（fast）のままだよ。"),
+ mc("g46",K.g,"Math is ( ) difficult for me than science.","more",["most","very","much"],"私にとって、数学は理科より難しい。","difficult のように長い言葉は more ～ than …。"),
+ mc("g47",K.g,"Yuki is the ( ) of the three girls.","tallest",["taller","tall","more tall"],"ユキは3人の女の子の中でいちばん背が高い。","of the three（3人の中で）があるので、いちばん～の形（the tallest）にするよ。"),
+ mc("g48",K.g,"The man ( ) lives next door is a doctor.","who",["which","whose","what"],"となりに住んでいる男の人は医者だ。","『人』を説明するので who。"),
+ mc("g49",K.g,"I have a friend ( ) father is a pilot.","whose",["who","which","that"],"私には、お父さんがパイロットの友だちがいる。","whose ＋ 名詞（father）＝『その人の～』。"),
+ mc("g50",K.g,"The cake ( ) my mother made was delicious.","which",["who","whose","where"],"お母さんが作ったケーキはおいしかった。","『物』（cake）を説明するので which。（that でもOK）"),
+ mc("g51",K.g,"This is the town ( ) I was born.","where",["which","who","whose"],"ここは私が生まれた町です。","場所（town）を説明して、そこで何かがあったときは where を使うよ。"),
+ mc("g52",K.g,"I know the girl ( ) is standing over there.","who",["which","whose","where"],"あそこに立っている女の子を知っている。","『人』が主語になるので who。"),
+ mc("g53",K.g,"( ) I was a child, I lived in Kyoto.","When",["Because","Unless","Until"],"子どものころ、私は京都に住んでいた。","When ～＝～のときに。"),
+ mc("g54",K.g,"Wait here ( ) I come back.","until",["during","while","because"],"私がもどってくるまで、ここで待っていて。","until ～＝～するまで。"),
+ mc("g55",K.g,"I read a book ( ) I was waiting for the bus.","while",["during","until","if"],"バスを待っている間、私は本を読んだ。","while ～＝～している間に。while のあとには『主語＋動詞』が来るよ。（during のあとは名詞だけ）"),
+ mc("g56",K.g,"( ) it was cold, he went out without a coat.","Though",["Because","If","So"],"さむかったのに、彼はコートを着ないで出かけた。","Though＝～だけれども。さむい→コートなし、は反対の内容だね。"),
+ mc("g57",K.g,"( ) you study hard, you won't pass the test.","Unless",["If","Because","Until"],"一生けんめい勉強しないと、テストに合格できないよ。","Unless ～＝もし～しなければ。If ～ not と同じ意味だよ。"),
+ mc("g58",K.g,"I don't know who ( ).","she is",["is she","does she","she does"],"彼女がだれなのか、私は知らない。","間接疑問文は『疑問詞 ＋ 主語 ＋ 動詞』の順番。is she ではなく she is にするよ。"),
+ mc("g59",K.g,"Do you know what time ( )?","the store opens",["does the store open","opens the store","the store does open"],"その店が何時に開くか知っていますか？","間接疑問文は、what time のあとも ふつうの文の順番（the store opens）になるよ。"),
+ mc("g60",K.g,"I wonder ( ) Emi will like my present.","if",["what","who","when"],"エミは私のプレゼントを気に入ってくれるかな。","I wonder if ～＝～かなあ。"),
+ mc("g61",K.g,"( ) tall the building is!","How",["What","Which","So"],"なんて高い建物なんだろう！","How ＋ 形容詞（tall）＋ ～！＝なんて～なんだろう。名詞があるときは What を使うよ。"),
+ mc("g62",K.g,"( ) a beautiful flower this is!","What",["How","Which","Who"],"なんて美しい花なんだろう！","What a ＋ 形容詞 ＋ 名詞！。名詞（flower）があるので What。"),
+ mc("g63",K.g,"You ( ) wear a helmet when you ride a bike.","should",["must not","did","are"],"自転車に乗るときは、ヘルメットをかぶるべきだよ。","should＝～したほうがいい・～すべき。")
+]);
+
+D.grammar=D.grammar.concat([
+ mc("g64",K.g,"You ( ) park your car here. It's against the rule.","must not",["have to","can","may"],"ここに車をとめてはいけません。ルールいはんです。","must not ～＝～してはいけない（禁止）。don't have to（～しなくてよい）とはちがうよ。"),
+ mc("g65",K.g,"You ( ) come with me if you don't want to.","don't have to",["must not","cannot","never"],"行きたくないなら、私といっしょに来なくてもいいよ。","don't have to ～＝～しなくてもよい。must not（～してはいけない）とまちがえやすいよ。"),
+ mc("g66",K.g,"( ) I open the window? It's hot in here.","May",["Must","Did","Are"],"まどを開けてもいいですか？ ここは暑いです。","May I ～?＝～してもいいですか？"),
+ mc("g67",K.g,"How ( ) water do you drink every day?","much",["many","long","often"],"毎日どれくらいの水を飲みますか？","water は数えられない名詞なので、How much を使うよ。How many は数えられるものに使うよ。"),
+ mc("g68",K.g,"How ( ) books are there in your bag?","many",["much","long","far"],"かばんの中に本は何冊ありますか？","books は数えられるので How many。"),
+ mc("g69",K.g,"( ) does it take to get to the station? — About ten minutes.","How long",["How far","How much","How many"],"駅に行くのに、どのくらいかかりますか？ — 約10分です。","かかる時間は How long で聞くよ。How far は距離。"),
+ mc("g70",K.g,"( ) is the airport from here? — It's about 20 kilometers.","How far",["How long","How old","How many"],"ここから空港までどのくらい遠いですか？ — 約20キロです。","きょりは How far で聞くよ。"),
+ mc("g71",K.g,"A: ( ) is your birthday? B: It's June 5th.","When",["Where","Who","Why"],"A：誕生日はいつ？ B：6月5日だよ。","日づけを聞くときは When。"),
+ mc("g72",K.g,"( ) do you usually go to school? — By bike.","How",["What","Where","Which"],"ふだん、どうやって学校に行きますか？ — 自転車です。","方法（どうやって）は How で聞くよ。"),
+ mc("g73",K.g,"I don't have ( ) money with me today.","much",["many","every","a"],"今日は、あまりお金を持っていない。","money は数えられない名詞。否定文では much（あまり）を使うよ。"),
+ mc("g74",K.g,"There are ( ) students in the library today. It's almost empty.","few",["little","much","a lot"],"今日は図書館にほとんど生徒がいない。ほぼ空っぽだ。","few＋数えられる名詞（students）＝ほとんどない。little は数えられない名詞に使うよ。"),
+ mc("g75",K.g,"I have ( ) time. I can't go shopping with you.","little",["few","many","some"],"ほとんど時間がない。いっしょに買い物に行けないよ。","little＋数えられない名詞（time）＝ほとんどない。"),
+ mc("g76",K.g,"Both of my parents ( ) teachers.","are",["is","be","am"],"私の両親はふたりとも先生だ。","Both of ～＝～のふたりとも。複数あつかいなので are。"),
+ mc("g77",K.g,"Everyone in my class ( ) a dog.","has",["have","are having","having"],"クラスのみんなが犬を飼っている。","everyone は『1人ずつ』と考えるので、単数あつかい（has）。"),
+ mc("g78",K.g,"The movie was so ( ) that I fell asleep.","boring",["bored","bore","bores"],"その映画はとてもたいくつだったので、私はねてしまった。","『物』がたいくつ＝boring。『人』がたいくつしている＝bored。映画は物なので boring。"),
+ mc("g79",K.g,"I was ( ) at the news. I couldn't say anything.","surprised",["surprising","surprise","surprises"],"そのニュースにおどろいて、何も言えなかった。","『人』がおどろいた＝surprised。『物・できごと』がおどろかせる＝surprising。"),
+ mc("g80",K.g,"The game was ( ). Everyone got excited.","exciting",["excited","excite","excites"],"その試合はわくわくするものだった。みんなが興奮した。","試合（物）がわくわくさせる＝exciting。人が興奮している＝excited。"),
+ mc("g81",K.g,"That cake smells ( ).","good",["well","nicely","happily"],"あのケーキはいいにおいがする。","smell ＋ 形容詞＝～のにおいがする。good は形容詞、well は『上手に』という副詞だよ。"),
+ mc("g82",K.g,"My brother plays the guitar very ( ).","well",["good","nice","best"],"兄（弟）はギターをとても上手にひく。","『上手に』と動詞（plays）を説明するときは、副詞の well を使うよ。good は形容詞。"),
+ mc("g83",K.g,"Please write your name ( ) on the paper.","clearly",["clear","clean","cleaning"],"紙に、名前をはっきり書いてください。","write（動詞）を説明するので、副詞（clearly）にするよ。"),
+ mc("g84",K.g,"I ( ) a letter to my grandmother yesterday.","wrote",["write","written","writing"],"昨日、おばあちゃんに手紙を書いた。","yesterday（昨日）があるので、過去形（wrote）。"),
+ mc("g85",K.g,"If I ( ) a bird, I could fly to you.","were",["am","will be","have been"],"もし私が鳥だったら、あなたのところへ飛んでいけるのに。","『もし～だったら（ありえないこと）』は、If I were ～ の形。was ではなく were を使うよ。")
+]);
+
+D.idiom=D.idiom.concat([
+ mc("i13",K.i,"Please ( ) your coat. It's cold outside.","put on",["take off","look for","turn off"],"外はさむいから、コートを着てね。","put on＝身につける（着る・はく）。反対は take off（ぬぐ）。"),
+ mc("i14",K.i,"Could you ( ) the volume? I can't hear the TV.","turn up",["turn off","take off","give up"],"音量を上げてくれる？ テレビが聞こえないんだ。","turn up＝（音や火を）大きくする。反対は turn down（小さくする）。"),
+ mc("i15",K.i,"I couldn't ( ) the answer, so I asked my teacher.","figure out",["put on","take off","look after"],"答えがわからなかったので、先生にたずねた。","figure out＝（考えて）わかる・理解する。"),
+ mc("i16",K.i,"Don't ( ) your dream. Keep trying!","give up",["take off","turn on","put on"],"夢をあきらめないで。がんばり続けよう！","give up＝あきらめる。Keep trying（がんばり続けて）と反対の意味だね。"),
+ mc("i17",K.i,"My father will ( ) my sister at the station at six.","pick up",["give up","put on","turn off"],"お父さんが6時に駅で妹をむかえに行く。","pick up 人＝人をむかえに行く（車などで）。"),
+ mc("i18",K.i,"Please ( ) your name on this list.","write down",["look up","turn on","take care"],"このリストに、名前を書いてください。","write down＝書きとめる。"),
+ mc("i19",K.i,"If you don't know a word, you should ( ) the word in a dictionary.","look up",["look after","look like","look out"],"知らない言葉は、辞書で調べたほうがいいよ。","look up＝（辞書などで）調べる。"),
+ mc("i20",K.i,"Ken and I ( ) well. We've been friends for ten years.","get along",["get off","get over","get up"],"ケンと私は仲がよい。10年間友だちだ。","get along (well)＝仲よくやっていく。"),
+ mc("i21",K.i,"I'm ( ) my sister's baby while she is out.","taking care of",["looking for","getting over","thinking about"],"お姉さん（妹）が出かけている間、私はその赤ちゃんの世話をしている。","take care of ～＝～の世話をする。look after と同じ意味だよ。"),
+ mc("i22",K.i,"Look ( )! There is a car coming.","out",["in","for","after"],"気をつけて！ 車が来ているよ。","Look out!＝気をつけて！（あぶない！）。"),
+ mc("i23",K.i,"She is proud ( ) her son.","of",["at","for","with"],"彼女は息子をほこりに思っている。","be proud of ～＝～をほこりに思う。"),
+ mc("i24",K.i,"He is afraid ( ) dogs.","of",["at","to","on"],"彼は犬をこわがっている。","be afraid of ～＝～をこわがる。"),
+ mc("i25",K.i,"I'm tired ( ) this rain. I want to see the sun.","of",["at","in","for"],"この雨にはうんざり。太陽が見たいな。","be tired of ～＝～にあきあきしている。（be tired from ～は『～でつかれた』）"),
+ mc("i26",K.i,"Our school is different ( ) yours.","from",["of","at","with"],"私たちの学校は、あなたの学校とはちがう。","be different from ～＝～とちがう。"),
+ mc("i27",K.i,"Thank you ( ) your help.","for",["of","to","at"],"手伝ってくれてありがとう。","Thank you for ～＝～をありがとう。"),
+ mc("i28",K.i,"I'm sorry ( ) being late.","for",["of","to","with"],"おくれてごめんなさい。","be sorry for ～＝～をあやまる。"),
+ mc("i29",K.i,"He is absent ( ) school today because he has a cold.","from",["to","at","of"],"彼はかぜをひいたので、今日は学校を休んでいる。","be absent from ～＝～を欠席する。"),
+ mc("i30",K.i,"I agree ( ) you. That's a good idea.","with",["to","for","at"],"あなたに賛成だよ。それはいい考えだね。","agree with 人＝人に賛成する。"),
+ mc("i31",K.i,"She arrived ( ) the station ten minutes early.","at",["to","into","for"],"彼女は10分早く駅に着いた。","arrive at ～＝～に着く。（大きな町や国には in を使うよ）"),
+ mc("i32",K.i,"Who is ( ) charge of this project?","in",["on","at","for"],"このプロジェクトの責任者はだれですか？","in charge of ～＝～を担当している・責任がある。"),
+ mc("i33",K.i,"I'm ( ) a hurry, so I can't talk now.","in",["on","at","by"],"いそいでいるので、今は話せない。","in a hurry＝いそいで。"),
+ mc("i34",K.i,"He ( ) a speech in front of the class.","gave",["took","got","had"],"彼はクラスの前でスピーチをした。","give a speech＝スピーチをする。（make a speech でもOK）"),
+ mc("i35",K.i,"I ( ) a cold last week, so I stayed in bed.","caught",["took","made","held"],"先週かぜをひいたので、ベッドにいた。","catch a cold＝かぜをひく。catch の過去形は caught。"),
+ mc("i36",K.i,"Let's ( ) a break. We've been working for two hours.","take",["make","do","get"],"休けいしよう。2時間も働いているよ。","take a break＝休けいする。"),
+ mc("i37",K.i,"Please ( ) a seat. The doctor will see you soon.","have",["make","do","put"],"どうぞおかけください。先生がすぐに診ます。","have a seat＝すわる。（take a seat でもOK）"),
+ mc("i38",K.i,"I ( ) my best, but I couldn't win the game.","did",["made","took","had"],"ベストをつくしたけれど、試合に勝てなかった。","do my best＝ベストをつくす。")
+]);
+
+D.idiom=D.idiom.concat([
+ mc("i39",K.i,"Can you ( ) me a favor? I need to borrow your bike.","do",["make","take","give"],"お願いがあるんだけど。自転車をかりたいの。","do 人 a favor＝人の頼みをきいてあげる。"),
+ mc("i40",K.i,"He ( ) a mistake on the test. He wrote the wrong answer.","made",["did","took","had"],"彼はテストでミスをした。まちがった答えを書いたんだ。","make a mistake＝まちがえる。"),
+ mc("i41",K.i,"Will you ( ) me a hand with these boxes?","give",["make","take","do"],"この箱を運ぶのを手伝ってくれる？","give 人 a hand＝人を手伝う。"),
+ mc("i42",K.i,"He ( ) up his mind to study abroad.","made",["took","had","put"],"彼は留学すると決心した。","make up one's mind＝決心する。"),
+ mc("i43",K.i,"The meeting was ( ) off because of the typhoon.","called",["taken","turned","looked"],"台風のため、会議は中止になった。","call off＝中止にする。cancel と同じ意味だよ。"),
+ mc("i44",K.i,"Don't ( ) your homework until the last minute.","put off",["call off","take off","turn off"],"宿題をぎりぎりまで先のばしにしないで。","put off＝先のばしにする。"),
+ mc("i45",K.i,"He ( ) out of the car and ran to the door.","got",["went","put","took"],"彼は車からおりて、ドアへ走った。","get out of ～＝（車などから）出る・おりる。"),
+ mc("i46",K.i,"I'll ( ) you off at the station.","see",["look","watch","take"],"駅まで見送るよ。","see 人 off＝人を見送る。"),
+ mc("i47",K.i,"She is ( ) to move to Osaka next month.","going",["coming","getting","taking"],"彼女は来月、大阪に引っこす予定だ。","be going to ～＝～するつもり。予定を言うときに使うよ。"),
+ mc("i48",K.i,"( ) the way, what time is it now?","By",["On","At","In"],"ところで、今何時？","By the way＝ところで。話題を変えるときに使うよ。"),
+ mc("i49",K.i,"I couldn't go to the party ( ) of the rain.","because",["so","but","since"],"雨のせいで、パーティーに行けなかった。","because of ～＝～のせいで・～のために。of のあとは名詞が来るよ。"),
+ mc("i50",K.i,"( ) of my friends live in Tokyo. The others live in Osaka.","Some",["All","Every","Both"],"友だちの何人かは東京に住んでいる。ほかの人は大阪に住んでいる。","Some of ～＝～の何人か（一部）。『ほかの人は』とつながるね。"),
+ mc("i51",K.i,"In the ( ), I want to be a nurse.","future",["past","present","last"],"将来、私は看護師になりたい。","in the future＝将来は。"),
+ mc("i52",K.i,"She went to the park ( ) herself. She likes to be alone.","by",["with","for","at"],"彼女はひとりで公園に行った。ひとりでいるのが好きなんだ。","by oneself＝ひとりで。"),
+ mc("i53",K.i,"He ( ) up in Hokkaido. Now he lives in Tokyo.","grew",["got","put","took"],"彼は北海道で育った。今は東京に住んでいる。","grow up＝育つ。grow の過去形は grew。"),
+ mc("i54",K.i,"I'll be back ( ) a few minutes.","in",["for","at","on"],"数分でもどるよ。","in ＋ 時間＝『～たったら』。in a few minutes＝数分後に。"),
+ mc("i55",K.i,"As ( ) as I know, he lives in Nagoya.","far",["long","much","well"],"私の知るかぎり、彼は名古屋に住んでいる。","as far as I know＝私の知るかぎり。"),
+ mc("i56",K.i,"He didn't come. ( ) a result, we started without him.","As",["For","On","With"],"彼が来なかった。その結果、彼なしで始めた。","as a result＝その結果。"),
+ mc("i57",K.i,"( ) example, I like fruit. I eat apples and oranges every day.","For",["In","On","By"],"たとえば、私は果物が好きだ。毎日りんごやオレンジを食べる。","for example＝たとえば。"),
+ mc("i58",K.i,"It is ( ) time to go to bed.","about",["over","under","with"],"そろそろねる時間だ。","It's about time to ～＝そろそろ～する時間だ。"),
+ mc("i59",K.i,"( ) first, I didn't like the food, but now I love it.","At",["In","On","For"],"はじめは、その食べ物が好きじゃなかったが、今は大好きだ。","at first＝はじめは。But（でも）のあとで気持ちが変わったね。"),
+ mc("i60",K.i,"( ) all, I think this plan is the best.","After",["Before","Over","Under"],"けっきょく、この計画がいちばんよいと思う。","after all＝けっきょくのところ。")
+]);
+
+D.conv=D.conv.concat([
+ mc("c13",K.c,"A: Hello. May I speak to Ms. Green, please?\nB: ( )","I'm sorry, she's out right now. Can I take a message?",["She is a good singer.","Yes, she was last week.","I don't speak English."],"A：もしもし。グリーンさんをお願いできますか？ B：すみません、今外出しています。伝言をうけたまわりましょうか？","電話での会話。Can I take a message?＝伝言を聞きましょうか？ と言うよ。"),
+ mc("c14",K.c,"A: How much is this jacket?\nB: ( )","It's fifty dollars.",["It's very far.","I bought it yesterday.","Yes, it's mine."],"A：このジャケットはいくらですか？ B：50ドルです。","How much ～? は『いくら？』と値段を聞く質問。金額で答えるよ。"),
+ mc("c15",K.c,"A: Can I help you?\nB: ( )","Yes, I'm looking for a gift for my mother.",["It was very nice.","Yes, you can go now.","She is my mother."],"A：いらっしゃいませ（何かおさがしですか）？ B：はい、母へのプレゼントをさがしています。","お店の人の『Can I help you?』には、ほしいものを答えるよ。"),
+ mc("c16",K.c,"A: What would you like to drink?\nB: ( )","I'll have orange juice, please.",["Yes, I would.","It's on the table.","I drank it yesterday."],"A：何をお飲みになりますか？ B：オレンジジュースをお願いします。","I'll have ～＝～をください（注文するときの言い方）。"),
+ mc("c17",K.c,"A: Do you have any plans for the weekend?\nB: ( )","Yes, I'm going to visit my grandmother.",["No, I don't have a watch.","It's on Saturday.","I was at home."],"A：週末の予定はある？ B：うん、おばあちゃんに会いに行くよ。","予定を聞かれたので、これからすることを答えよう。"),
+ mc("c18",K.c,"A: I'm having a party on Saturday. Can you come?\nB: ( )","I'd love to. What time does it start?",["I had a good time.","It was last Saturday.","No, thank you. I'm full."],"A：土曜日にパーティーをするんだ。来られる？ B：行きたい！ 何時に始まるの？","『来られる？』には、行く・行かないで答える。I'd love to.＝ぜひ行きたい。"),
+ mc("c19",K.c,"A: Excuse me. Where is the nearest bus stop?\nB: ( )","It's just around the corner.",["It leaves at eight.","I take the bus.","Twenty dollars."],"A：すみません。いちばん近いバス停はどこですか？ B：すぐそこの角を曲がったところですよ。","Where ～? は場所をたずねる質問。場所を答えよう。around the corner＝角を曲がったところ。"),
+ mc("c20",K.c,"A: How long are you going to stay in Tokyo?\nB: ( )","For about five days.",["By train.","Next week.","Two hundred dollars."],"A：東京にはどのくらい滞在するの？ B：5日間くらいだよ。","How long ～? は期間をたずねる質問。期間（for about five days）で答えるよ。"),
+ mc("c21",K.c,"A: What time does the movie start?\nB: ( )","At seven thirty.",["For two hours.","In the theater.","It's very exciting."],"A：映画は何時に始まる？ B：7時30分だよ。","What time ～? は時刻をたずねる質問。"),
+ mc("c22",K.c,"A: Would you like me to carry your bag?\nB: ( )","Thank you. That's very kind of you.",["No, I'm not.","It's a heavy day.","Yes, I carry it."],"A：かばんを持ちましょうか？ B：ありがとう。ご親切にどうも。","Would you like me to ～?＝～しましょうか？ ありがとうと答えるのが自然。"),
+ mc("c23",K.c,"A: I have a headache.\nB: ( )","That's too bad. You should go home and rest.",["That sounds fun.","I'm glad to hear that.","Yes, I like it."],"A：頭がいたいんだ。 B：それはたいへん。家に帰って休んだほうがいいよ。","具合がわるい人には、That's too bad.（それはいけないね）と言うよ。"),
+ mc("c24",K.c,"A: I passed the English test!\nB: ( )","Congratulations! You worked so hard.",["That's too bad.","I'm sorry to hear that.","Never mind."],"A：英語のテストに合格したよ！ B：おめでとう！ がんばったもんね。","いいニュースには Congratulations!（おめでとう）。"),
+ mc("c25",K.c,"A: May I use your phone?\nB: ( )","Of course. Go ahead.",["Yes, you may be.","It's a new one.","I'm using the Internet."],"A：電話をお借りしてもいいですか？ B：もちろん。どうぞ。","May I ～?（～してもいいですか？）には Of course. Go ahead.（どうぞ）で答えるよ。"),
+ mc("c26",K.c,"A: Which do you want, tea or coffee?\nB: ( )","Tea, please.",["Yes, I do.","I want to.","No, thank you."],"A：紅茶とコーヒー、どちらがいい？ B：紅茶をお願い。","『A か B か』と聞かれたら、Yes/No ではなく、えらんだものを答えるよ。"),
+ mc("c27",K.c,"A: Who is that man over there?\nB: ( )","He's our new English teacher.",["I'm in the third grade.","Yes, he is.","It's over there."],"A：あそこにいる男の人はだれ？ B：新しい英語の先生だよ。","Who ～? は人をたずねる質問。その人がだれかを答えよう。"),
+ mc("c28",K.c,"A: Why were you absent yesterday?\nB: ( )","Because I had a fever.",["By bus.","Yes, I was.","About three days."],"A：昨日はなぜ休んだの？ B：熱があったからだよ。","Why ～? は理由をたずねる質問。Because ～ で答えよう。"),
+ mc("c29",K.c,"A: Thanks for the delicious dinner.\nB: ( )","You're welcome. I'm glad you liked it.",["I'm sorry.","Yes, I did.","See you later."],"A：おいしい夕食をありがとう。 B：どういたしまして。気に入ってくれてうれしいよ。","ありがとうには You're welcome.（どういたしまして）。"),
+ mc("c30",K.c,"A: Do you mind if I open the window?\nB: ( )","Not at all. It's hot in here.",["Yes, it is.","I like windows.","No, I can't."],"A：まどを開けてもいいですか？ B：かまいませんよ。ここは暑いですしね。","Do you mind ～?＝～してもいいですか？（いやですか？）。『いいですよ』は Not at all. や No, I don't. と答えるよ。"),
+ mc("c31",K.c,"A: Sorry, I broke your cup.\nB: ( )","Don't worry. It was an old one.",["You're welcome.","I'm glad to meet you.","Thank you very much."],"A：ごめん、君のカップをわっちゃった。 B：気にしないで。古いものだったから。","あやまられたら、Don't worry.（気にしないで）などで答えよう。"),
+ mc("c32",K.c,"A: I can't decide what to wear tomorrow.\nB: ( )","How about the blue dress?",["It is blue.","Yes, I can.","I'm wearing it."],"A：明日何を着るか決められないよ。 B：青いワンピースはどう？","How about ～?＝～はどう？ と提案する言い方。"),
+ mc("c33",K.c,"A: Let's go to the zoo this Sunday.\nB: ( )","Sorry, I can't. I have to study for a test.",["Yes, I do.","It was fun.","I'm a student."],"A：今度の日曜日に動物園に行こうよ。 B：ごめん、行けないんだ。テスト勉強をしなきゃ。","さそいをことわるときは、Sorry, I can't. と理由を言うよ。"),
+ mc("c34",K.c,"A: Can I have the check, please?\nB: ( )","Certainly. I'll bring it right away.",["Yes, you are.","I'm checking.","The menu, please."],"A：お会計をお願いします。 B：かしこまりました。すぐお持ちします。","the check＝（レストランの）お勘定。店員さんは Certainly.（かしこまりました）と答えるよ。"),
+ mc("c35",K.c,"A: I'd like to return this sweater. It's too small.\nB: ( )","Sure. Do you have the receipt?",["Yes, I'm small too.","I'd like to see it.","It's a nice day."],"A：このセーターを返品したいのですが。小さすぎて。 B：かしこまりました。レシートはお持ちですか？","お店で返品するとき、店員さんは『レシートはありますか？』と聞くよ。"),
+ mc("c36",K.c,"A: Could you tell me how to get to the library?\nB: ( )","Take the subway and get off at City Hall.",["It closes at five.","I read it yesterday.","Yes, you could."],"A：図書館への行き方を教えてもらえますか？ B：地下鉄に乗って、市役所駅でおりてください。","how to get to ～＝～への行き方。道順を答えているものをえらぼう。")
+]);
+
+D.conv=D.conv.concat([
+ mc("c37",K.c,"A: Do you know when the next train leaves?\nB: ( )","In ten minutes.",["For ten minutes.","Ten kilometers.","Yes, I'm late."],"A：次の電車がいつ出るか知ってる？ B：10分後だよ。","when（いつ）の質問に、in ten minutes（10分後に）と答えているよ。for は『～の間』なので合わないよ。"),
+ mc("c38",K.c,"A: What do you do on weekends?\nB: ( )","I usually play tennis with my friends.",["Yes, I play it.","It's Saturday.","I was very tired."],"A：週末はふだん何をしているの？ B：たいてい友だちとテニスをしているよ。","What do you do ～?＝ふだん何をしているか。ふだんの習慣を答えるよ。"),
+ mc("c39",K.c,"A: Is this seat taken?\nB: ( )","No, please sit down.",["Yes, it's delicious.","I took it yesterday.","It's a nice seat."],"A：この席はあいていますか？ B：はい、どうぞすわってください。","Is this seat taken?＝この席は、だれかいますか？ 『No』ならあいているよ。"),
+ mc("c40",K.c,"A: I'll have the steak, please.\nB: ( )","How would you like it cooked?",["How much is it?","Where is the steak?","Who is cooking?"],"A：ステーキをお願いします。 B：焼きかげんはどうなさいますか？","レストランでステーキを注文すると、焼きかげんを聞かれるよ。"),
+ mc("c41",K.c,"A: Hi, Mike. Long time no see!\nB: ( )","Hi, Anna! How have you been?",["Nice to meet you.","I'm leaving now.","See you tomorrow."],"A：やあ、マイク。久しぶり！ B：やあ、アンナ！ 元気にしてた？","久しぶりに会ったときのあいさつ。Nice to meet you.（はじめまして）は、はじめて会った人に言うよ。"),
+ mc("c42",K.c,"A: Mom, I'm home!\nB: ( )","Welcome back. How was school?",["Nice to meet you.","Have a nice trip.","I'm going to bed."],"A：ただいま！ B：おかえり。学校はどうだった？","家に帰った人には Welcome back.（おかえり）と言うよ。"),
+ mc("c43",K.c,"A: I'm going to Hawaii next week.\nB: ( )","That sounds great. Have a nice trip!",["I'm sorry to hear that.","You're welcome.","Never mind."],"A：来週ハワイに行くんだ。 B：いいね。楽しい旅行を！","Have a nice trip!＝楽しい旅行を。"),
+ mc("c44",K.c,"A: Are you ready to order, sir?\nB: ( )","Not yet. Could you give me a few more minutes?",["Yes, I'm a student.","It's delicious.","No, I didn't."],"A：ご注文はお決まりですか？ B：まだです。あと少し時間をいただけますか？","Are you ready to order?＝ご注文はお決まりですか？ まだなら Not yet. と言うよ。"),
+ mc("c45",K.c,"A: Is it all right if I leave early today?\nB: ( )","Sure, but please finish your work first.",["Yes, I'm early.","It's all right today.","I left yesterday."],"A：今日は早く帰ってもいいですか？ B：いいよ、でも先に仕事を終わらせてね。","Is it all right if I ～?＝～してもいいですか？ と許可を聞く言い方。"),
+ mc("c46",K.c,"A: What's your favorite subject?\nB: ( )","I like science the best.",["It's on Monday.","Yes, I do.","I have math class."],"A：好きな教科は何？ B：理科がいちばん好きだよ。","What's your favorite ～?＝いちばん好きな～は何？"),
+ mc("c47",K.c,"A: How often do you go to the gym?\nB: ( )","About twice a week.",["For two hours.","By bike.","Two years ago."],"A：どのくらいの頻度でジムに行くの？ B：週に2回くらいだよ。","How often ～?＝どのくらいの頻度で？ 『週に○回』のように答えるよ。"),
+ mc("c48",K.c,"A: How many people are coming to the party?\nB: ( )","About twenty, I think.",["Twenty dollars.","At seven.","In the garden."],"A：パーティーには何人来るの？ B：20人くらいだと思うよ。","How many ～?＝いくつ・何人。数で答えるよ。"),
+ mc("c49",K.c,"A: Whose bag is this?\nB: ( )","It's mine. Thank you for finding it.",["Yes, it is.","It's near the door.","I like it."],"A：これはだれのかばん？ B：私のだよ。見つけてくれてありがとう。","Whose ～?＝だれの～？ 持ち主を答えるよ。mine＝私のもの。"),
+ mc("c50",K.c,"A: Are you OK? You look pale.\nB: ( )","I feel a little sick. Maybe I ate too much.",["I'm fine, you're welcome.","No, I'm not a doctor.","It was a good book."],"A：だいじょうぶ？ 顔色がわるいよ。 B：ちょっと気分がわるいんだ。食べすぎたのかも。","体の具合を聞かれたら、どんな具合かを答えよう。"),
+ mc("c51",K.c,"A: I'm thinking about joining the tennis club.\nB: ( )","That's a good idea. You'll make a lot of friends.",["You're right. I'm sorry.","Thank you for coming.","See you next time."],"A：テニス部に入ろうかなと思ってるんだ。 B：いい考えだね。友だちがたくさんできるよ。","相手の考えにさんせいするときは、That's a good idea. と言うよ。"),
+ mc("c52",K.c,"A: Would you mind closing the door?\nB: ( )","Not at all. I'll close it now.",["Yes, I'd love to.","Yes, I'm closed.","No, you can't."],"A：ドアを閉めてもらえませんか？ B：いいですよ。今閉めますね。","Would you mind ～ing?＝～してもらえませんか？ 『いいですよ』は Not at all. と答えるよ。Yes だと『いやです』の意味になるよ。"),
+ mc("c53",K.c,"A: Excuse me, is this the train for Yokohama?\nB: ( )","No, you need to change at the next station.",["Yes, you can take a picture.","It's my favorite station.","I live in Yokohama."],"A：すみません、これは横浜行きの電車ですか？ B：いいえ、次の駅で乗りかえる必要がありますよ。","『この電車は～行き？』と聞かれたら、Yes か No と、必要なことを答えよう。"),
+ mc("c54",K.c,"A: I'm so nervous about tomorrow's speech.\nB: ( )","Don't worry. You'll do fine.",["I'm sorry I'm late.","Here you are.","That's all."],"A：明日のスピーチがすごく心配だよ。 B：心配しないで。きっとうまくいくよ。","きんちょうしている人には、Don't worry. You'll do fine.（だいじょうぶ、うまくいくよ）と声をかけるよ。"),
+ mc("c55",K.c,"A: Hello. This is Jim. Can I speak to Mary?\nB: ( )","Hold on, please. I'll get her.",["It's Mary's pen.","Good morning, Mary.","Yes, you may speak."],"A：もしもし、ジムです。メアリーをお願いできますか？ B：ちょっと待ってね。呼んでくるね。","電話で『ちょっと待ってね』は Hold on, please. と言うよ。"),
+ mc("c56",K.c,"A: I think I left my wallet on the bus.\nB: ( )","You should call the bus company right away.",["That's a nice wallet.","You're welcome.","Let's go by bus."],"A：バスにさいふを忘れたかもしれない。 B：すぐバス会社に電話したほうがいいよ。","困っている人には、You should ～（～したほうがいい）とアドバイスしよう。"),
+ mc("c57",K.c,"A: Would you like to try this cake? I made it myself.\nB: ( )","Thanks. Mmm, it's delicious!",["I'm sorry. It's too late.","No, I don't make it.","Yes, I'm a baker."],"A：このケーキを食べてみない？ 自分で作ったの。 B：ありがとう。うーん、おいしい！","すすめられたら、お礼を言って感想を伝えると自然だよ。"),
+ mc("c58",K.c,"A: Which bus should I take to get to the museum?\nB: ( )","You should take Bus Number 3.",["Yes, it's a museum.","I'd like to see it.","It opens at ten."],"A：博物館に行くには、どのバスに乗ればいいですか？ B：3番のバスに乗ってください。","Which ～? は『どれ？』とたずねる質問。バスの番号を答えよう。"),
+ mc("c59",K.c,"A: Can you speak more slowly, please? I can't understand you.\nB: ( )","Sorry. I'll try to speak more slowly.",["I speak English every day.","You're welcome.","It's very slow."],"A：もっとゆっくり話してもらえますか？ 聞きとれなくて。 B：ごめんなさい。もっとゆっくり話すようにするね。","お願いされたら、Sorry. と言って、これからどうするかを伝えよう。"),
+ mc("c60",K.c,"A: Do you have a table for four?\nB: ( )","Yes. Please follow me.",["No, I'm four.","It's four o'clock.","Four dollars, please."],"A：4人のテーブルはありますか？ B：はい。こちらへどうぞ。","レストランで席があるか聞かれた店員さんは、Please follow me.（こちらへどうぞ）と案内するよ。")
+]);
+
+D.order=D.order.concat([
+ od("w13","私は犬を2匹飼っています。",["I","have","two","dogs"],".","have two dogs＝犬を2匹飼っている。数は two などを名詞の前に置くよ。"),
+ od("w14","あなたは昼ごはんに何を食べましたか？",["What","did","you","have","for","lunch"],"?","What did you ～?＝何を～しましたか。did のあとは動詞のもとの形（have）。have for lunch＝昼食に食べる。"),
+ od("w15","私は先週の日曜日、家族と海に行きました。",["I","went","to","the","beach","with","my","family","last","Sunday"],".","went to the beach＝海に行った。with my family（家族と）と last Sunday（先週の日曜日）は、どちらを先に書いてもOK。",["I went to the beach last Sunday with my family"]),
+ od("w16","あなたの学校のことを教えてください。",["Please","tell","me","about","your","school"],".","tell me about ～＝～について教えて。Eメールの返事で、相手にお願いするときに使えるよ。"),
+ od("w17","次の土曜日は何か予定がありますか？",["Do","you","have","any","plans","for","next","Saturday"],"?","Do you have any plans for ～?＝～は予定がありますか。メールで相手にきくときに使えるよ。"),
+ od("w18","私はあなたに会えるのを楽しみにしています。",["I","am","looking","forward","to","seeing","you"],".","look forward to ～ing＝～するのを楽しみにする。to のあとは ～ing。"),
+ od("w19","それを聞いてとてもうれしいです。",["I","am","very","glad","to","hear","that"],".","be glad to ～＝～してうれしい。うれしい気持ちをメールで伝えるときに使えるよ。"),
+ od("w20","あなたが好きなスポーツは何ですか？",["What","sport","do","you","like","the","best"],"?","What sport do you like the best?＝いちばん好きなスポーツは何？ 好みをたずねる文だよ。"),
+ od("w21","いっしょに宿題をしませんか？",["Why","don't","we","do","our","homework","together"],"?","Why don't we ～?＝いっしょに～しませんか。さそうときの言い方。"),
+ od("w22","私は野球をするのが好きです。",["I","like","playing","baseball"],".","like ～ing＝～するのが好き。"),
+ od("w23","私の兄は毎朝6時に起きます。",["My","brother","gets","up","at","six","every","morning"],".","gets up＝起きる。主語が3人称（brother）なので、get に s がつくよ。",["My brother gets up every morning at six"]),
+ od("w24","駅までの道を教えてもらえますか？",["Could","you","tell","me","the","way","to","the","station"],"?","Could you tell me ～?＝～を教えていただけますか。the way to ～＝～への道。"),
+ od("w25","私は来月、京都を訪れる予定です。",["I","am","going","to","visit","Kyoto","next","month"],".","be going to ～＝～するつもり。予定を言うときに使うよ。"),
+ od("w26","あなたの考えを教えてください。",["Please","tell","me","your","idea"],".","Please tell me ～.＝～を教えてください。ていねいなお願いになるよ。"),
+ od("w27","私はテレビを見るより本を読むほうが好きです。",["I","like","reading","books","better","than","watching","TV"],".","like A better than B＝BよりAが好き。AとBは ～ing の形をそろえるよ。"),
+ od("w28","彼女は私より早く起きます。",["She","gets","up","earlier","than","me"],".","earlier than ～＝～より早く。くらべるときは than を使うよ。"),
+ od("w29","日本には美しい場所がたくさんあります。",["There","are","many","beautiful","places","in","Japan"],".","There are ～ in …＝…に～がある。places は複数なので are を使うよ。"),
+ od("w30","私たちは環境を守るべきだと思います。",["I","think","we","should","protect","the","environment"],".","I think we should ～＝私たちは～すべきだと思う。意見を書くときの形だよ。"),
+ od("w31","多くの人が毎日スマートフォンを使っています。",["Many","people","use","smartphones","every","day"],".","Many people ～＝多くの人が～。people は複数あつかいなので、動詞は use（s なし）。"),
+ od("w32","スマートフォンは私たちの生活をもっと便利にします。",["Smartphones","make","our","lives","more","convenient"],".","make ～ ＋ 形容詞＝～を…にする。convenient＝便利な。"),
+ od("w33","たとえば、私たちは友だちとすぐに話すことができます。",["For","example,","we","can","talk","with","our","friends","quickly"],".","For example,＝たとえば。理由のあとに例をあげるときに使うよ。",["For example, we can quickly talk with our friends"]),
+ od("w34","第二に、私たちはお金をためることができます。",["Second,","we","can","save","money"],".","Second,＝第二に。理由が2つあるときの2つ目に言うよ。"),
+ od("w35","サッカーはおもしろいので、私は好きです。",["I","like","soccer","because","it","is","fun"],".","because ～＝～なので。理由を言うときに使うよ。"),
+ od("w36","私は、学校に制服は必要ないと思います。",["I","do","not","think","we","need","school","uniforms"],".","I don't think ～＝～ではないと思う。英語では not を think の前につけるよ。")
+]);
+
+D.order=D.order.concat([
+ od("w37","第一に、制服は高いです。",["First,","school","uniforms","are","expensive"],".","First,＝第一に。理由が2つあるときの1つ目に言うよ。"),
+ od("w38","第二に、生徒は自分で服をえらぶのを楽しめます。",["Second,","students","can","enjoy","choosing","their","own","clothes"],".","enjoy ～ing＝～するのを楽しむ。their own ～＝自分たちの～。"),
+ od("w39","だから、私は制服は必要ないと思います。",["So,","I","do","not","think","we","need","school","uniforms"],".","So,＝だから。作文のさいごのまとめに使えるよ。"),
+ od("w40","毎日運動すると、元気でいられます。",["You","can","stay","healthy","if","you","exercise","every","day"],".","stay healthy＝元気でいる。if ～＝もし～すれば。"),
+ od("w41","私はそのニュースを聞いて、おどろきました。",["I","was","surprised","to","hear","the","news"],".","be surprised to ～＝～しておどろく。"),
+ od("w42","あなたの手紙をありがとう。",["Thank","you","for","your","letter"],".","Thank you for ～.＝～をありがとう。"),
+ od("w43","返事がおくれてごめんなさい。",["I","am","sorry","for","my","late","reply"],".","sorry for ～＝～についてごめんなさい。late reply＝おそい返事。"),
+ od("w44","あなたは日本の食べ物で何が好きですか？",["What","Japanese","food","do","you","like"],"?","What ～ do you like?＝どんな～が好きですか。What のあとに名詞（Japanese food）が続くよ。"),
+ od("w45","私はあなたにいくつか質問があります。",["I","have","some","questions","for","you"],".","some questions＝いくつかの質問。Eメールの返信で使えるよ。"),
+ od("w46","あなたはどのくらいの間、英語を勉強していますか？",["How","long","have","you","studied","English"],"?","How long have you ～?＝どのくらいの間～していますか。have ＋ 過去分詞（studied）の形だよ。"),
+ od("w47","私は去年から、この町に住んでいます。",["I","have","lived","in","this","town","since","last","year"],".","since ～＝～からずっと。have lived（現在完了）と since はよくセットで使うよ。"),
+ od("w48","私は5歳のときから、ピアノをひいています。",["I","have","played","the","piano","since","I","was","five"],".","since I was five＝5歳のときから。楽器の前には the をつけるよ。"),
+ od("w49","彼は私に、手伝ってくれるようにたのみました。",["He","asked","me","to","help","him"],".","ask 人 to ～＝人に～するようにたのむ。"),
+ od("w50","私は何を持っていけばいいですか？",["What","should","I","bring"],"?","What should I ～?＝私は何を～すればいいですか。Eメールでたずねるときに使えるよ。"),
+ od("w51","私たちはいっしょにサッカーをして楽しみました。",["We","enjoyed","playing","soccer","together"],".","enjoy ～ing＝～するのを楽しむ。"),
+ od("w52","この本は私にとって、読むのがやさしいです。",["This","book","is","easy","for","me","to","read"],".","～ is easy for 人 to …＝人が…するのは～だ。"),
+ od("w53","私は将来、先生になりたいです。",["I","want","to","be","a","teacher","in","the","future"],".","want to ～＝～したい。in the future＝将来。"),
+ od("w54","あなたが来られなくて残念です。",["I","am","sorry","you","cannot","come"],".","I'm sorry (that) ～＝～で残念です。"),
+ od("w55","電車は10分おくれています。",["The","train","is","ten","minutes","late"],".","ten minutes late＝10分おくれて。時間を表す言葉は late の前に置くよ。"),
+ od("w56","私は昨日、友だちからプレゼントをもらいました。",["I","got","a","present","from","my","friend","yesterday"],".","get ～ from …＝…から～をもらう。yesterday があるので過去形（got）。",["I got a present yesterday from my friend"]),
+ od("w57","私にとって、この質問に答えるのは難しいです。",["It","is","difficult","for","me","to","answer","this","question"],".","It is ～ for 人 to …＝人が…するのは～だ。"),
+ od("w58","多くの外国人観光客が日本を訪れます。",["Many","foreign","tourists","visit","Japan"],".","Many tourists ～＝多くの観光客が～。tourists は複数なので visit（s なし）。"),
+ od("w59","私は昼ごはんを食べたあとで、散歩をしました。",["I","took","a","walk","after","I","ate","lunch"],".","take a walk＝散歩する。after ～＝～したあとで。"),
+ od("w60","これが私のいちばん好きな本です。",["This","is","my","favorite","book"],".","my favorite ～＝私のいちばん好きな～。")
+]);
+
+D.l1=D.l1.concat([
+ mc("l1-9",K.l1,"","At the stop across the street.",["It takes twenty minutes.","Yes, it does."],"男：このバスは博物館に行きますか？ 女：いいえ。8番のバスにのってください。 男：どこでのれますか？","Where ～? は場所をたずねる質問。場所を答えているものをえらぼう。",{audio:[M("Excuse me. Does this bus go to the museum?"),F("No. You need Bus Number 8."),M("Where can I take it?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-10",K.l1,"","With my cousin from Osaka.",["At six o'clock.","Yes, I love pizza."],"女：今夜はピザのお店に行くんだ。 男：いいね。だれと行くの？","Who ～ with? は『だれと？』。人を答えよう。",{audio:[F("I'm going to a pizza restaurant tonight."),M("Sounds nice. Who are you going with?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-11",K.l1,"","Yes, I did it before dinner.",["Yes, it's Tom's house.","No, I'll go home."],"男：お母さん、トムの家に行ってもいい？ 女：宿題は終わったの？","Did you ～? には、した・しないで答えるよ。",{audio:[M("Mom, can I go to Tom's house?"),F("Did you finish your homework?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-12",K.l1,"","He likes fishing.",["He's fifty years old.","It's next Friday."],"女：お父さんの誕生日プレゼントを買いたいの。 男：お父さんは何が好きなの？","What does he like? は好きなものをたずねる質問。好きなことを答えるよ。",{audio:[F("I'd like to buy a birthday present for my father."),M("What does he like?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-13",K.l1,"","Yes, please. That would be great.",["No, I'm from Canada.","It's my first time."],"男：予約をしているブラウンです。 女：はい、ブラウン様。海が見える部屋になさいますか？","Would you like ～? には、Yes, please. などで答えよう。",{audio:[M("Hello. I have a reservation under the name of Brown."),F("Yes, Mr. Brown. Would you like a room with a view of the sea?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-14",K.l1,"","Three to one.",["At the stadium.","About two hours."],"女：昨夜のサッカーの試合を見た？ 男：うん、すごかった。うちのチームが勝ったよ！ 女：ほんと？ スコアは？","score（得点）を聞かれたので、数で答えるよ。Three to one＝3対1。",{audio:[F("Did you watch the soccer game last night?"),M("Yes, it was great. Our team won!"),F("Really? What was the score?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-15",K.l1,"","Sure. I won't forget it again.",["Yes, I'm sorry.","It's a good book."],"男：ごめん、君の本を家にわすれた。 女：いいよ。明日持ってこられる？","『持ってこられる？』には、Sure.（もちろん）などで答えるよ。",{audio:[M("I'm sorry, I forgot your book at home."),F("That's OK. Can you bring it tomorrow?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-16",K.l1,"","Next Monday.",["At the bookstore.","For three months."],"女：やあ、ジャック。今日はうれしそうだね。 男：うん。本屋さんでアルバイトが決まったんだ。 女：すごい！ いつ始まるの？","When ～? は『いつ？』。時を答えるよ。",{audio:[F("Hi, Jack. You look happy today."),M("Yes. I got a part-time job at a bookstore."),F("That's great! When do you start?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-17",K.l1,"","Let's wait and see. It may stop by noon.",["Yes, I like rain.","It was sunny yesterday."],"男：明日の天気はどうなるかな？ 女：午前中は雨になりそうだよ。 男：それなら、ピクニックはやめたほうがいいかな？","ピクニックをやめるか聞かれているよ。『ようすを見よう』という返事が合うね。",{audio:[M("What's the weather going to be like tomorrow?"),F("It's going to be rainy in the morning."),M("Then should we cancel our picnic?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-18",K.l1,"","I wear size twenty-five.",["I run every morning.","They are very expensive."],"女：すみません、ランニングシューズをさがしています。 男：サイズはいくつですか？","What size ～? は大きさ（サイズ）をたずねる質問。",{audio:[F("Excuse me, I'm looking for a pair of running shoes."),M("What size do you wear?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-19",K.l1,"","Yes, please. I don't have the tools.",["No, it's a new bike.","I'll ride it tomorrow."],"男：自転車のタイヤがパンクしちゃった。 女：あらら。直すのを手伝おうか？","Do you want me to ～?（～しましょうか？）には、お願いするか、ことわるかで答えるよ。",{audio:[M("My bike has a flat tire."),F("Oh no. Do you want me to help you fix it?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-20",K.l1,"","By plane. I already bought a ticket.",["For one week.","It's very hot."],"女：来月、沖縄に旅行する予定なの。 男：いいね！ どうやって行くの？","How ～ get there? は『どうやって行く？』。のりものを答えるよ。",{audio:[F("I'm planning a trip to Okinawa next month."),M("Nice! How are you going to get there?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-21",K.l1,"","We're having curry and rice.",["At the table.","It's seven o'clock."],"男：夕ごはんができたよ！ 女：すぐ行く。何を食べるの？","What are we having? は『何を食べるの？』。食べ物を答えるよ。",{audio:[M("Dinner is ready!"),F("I'll be right there. What are we having?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-22",K.l1,"","Good idea. I'm thirsty.",["Yes, it was a good movie.","No, I saw it yesterday."],"女：この映画、すごく楽しかった。 男：ぼくも。何か飲み物でも飲まない？","さそいには、Good idea. などで答えるよ。",{audio:[F("I really enjoyed this movie."),M("Me, too. Do you want to get something to drink?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-23",K.l1,"","Yes. Please tell her to call me back.",["Yes, she is at home.","It's Mike speaking."],"男：もしもし、マイクです。リサはいますか？ 女：ごめんなさい、出かけています。伝言をのこしますか？","電話で伝言をたのむときは、Please tell her to ～ と言うよ。",{audio:[M("Hello, this is Mike. Is Lisa at home?"),F("I'm sorry, she's out. Would you like to leave a message?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-24",K.l1,"","Around six would be fine.",["At the station.","Seven thirty."],"女：明日は遠足だよね？ 男：うん。7時30分までに学校に着かなきゃいけない。 女：わあ、早いね。何時に起きればいいかな？","What time ～? は時刻をたずねる質問。起きる時刻を答えるよ。",{audio:[F("Tomorrow is the school trip, right?"),M("Yes. We must be at school by seven thirty."),F("Oh, that's early. What time should I get up?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"})
+]);
+
+D.l1=D.l1.concat([
+ mc("l1-25",K.l1,"","My neighbors were making a lot of noise.",["I went to bed at ten.","Yes, I slept well."],"男：すごくつかれた。昨日の夜、よくねられなかったんだ。 女：どうして？","Why ～? は理由をたずねる質問。理由を答えるよ。",{audio:[M("I'm so tired. I didn't sleep well last night."),F("Why not?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-26",K.l1,"","Yes. I'll ask Emma and Ken.",["No, I went there with you.","The aquarium is big."],"女：お父さん、今週末、水族館に行ってもいい？ 男：いいよ。友だちもさそいたい？","Do you want to ～?（～したい？）には、Yes か No と、くわしい内容で答えるよ。",{audio:[F("Dad, can we go to the aquarium this weekend?"),M("Sure. Do you want to invite your friends?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-27",K.l1,"","Please use this one. Just press the button.",["We're from Canada.","It's a nice picture."],"男：すみません、写真をとってもらえますか？ 女：いいですよ。どのカメラを使えばいいですか？","どのカメラを使えばいいか聞かれたので、これを使ってと答えるよ。",{audio:[M("Excuse me. Could you take a picture of us?"),F("Sure. Which camera should I use?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-28",K.l1,"","I play the violin.",["I like classical music.","I joined last month."],"女：音楽部に入りたいんだ。 男：どんな楽器をひくの？","What instrument ～? は楽器をたずねる質問。楽器の名前を答えるよ。",{audio:[F("I want to join a music club."),M("What instrument do you play?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-29",K.l1,"","Yes, it's delicious.",["No, thank you. I'm full.","Yes, you are welcome."],"男：塩をとってもらえる？ 女：はい、どうぞ。スープはどう？","Is the soup OK?（スープはだいじょうぶ？）には、感想で答えるよ。",{audio:[M("Can you pass me the salt, please?"),F("Here you are. Is the soup OK?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-30",K.l1,"","Not yet. I'll go there now.",["Yes, I'm going to Paris.","It's a blue passport."],"女：空港でパスポートをなくしちゃった。 男：たいへん！ 案内所には聞いてみた？","Have you ～?（もう～した？）には、Not yet.（まだ）などで答えるよ。",{audio:[F("I lost my passport at the airport."),M("Oh no! Have you asked the information desk?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-31",K.l1,"","No, I left it at home.",["Yes, I like clouds.","It's a big umbrella."],"男：あの暗い雲を見て。 女：もうすぐ雨がふるかも。かさは持ってきた？","Did you ～? には、した・しないで答えよう。",{audio:[M("Look at those dark clouds."),F("It might rain soon. Did you bring an umbrella?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-32",K.l1,"","Yes. We're going to practice on Friday after school.",["No, I'm not a player.","Yes, it starts at two."],"女：土曜日に、チームの大事な試合があるんだ。 男：がんばってね！ 試合の前に練習するの？","Are you going to ～?（～する予定？）には、予定を答えるよ。",{audio:[F("Our team has a big game on Saturday."),M("Good luck! Are you going to practice before the game?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-33",K.l1,"","I love it. The food is great.",["Yes, it's my first time.","I'm from Australia."],"男：日本に来たのは初めてなんだ。 女：ようこそ！ 今のところ、どう？","How do you like ～?＝～はどう？（感想）。感想を答えるよ。",{audio:[M("This is my first time in Japan."),F("Welcome! How do you like it so far?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-34",K.l1,"","Four, please.",["At eight.","On Friday."],"女：もしもし、今夜のテーブルを予約したいのですが。 男：何名さまですか？","For how many people? は人数をたずねる質問。人数を答えるよ。",{audio:[F("Hi, I'd like to book a table for tonight."),M("For how many people?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-35",K.l1,"","Yes. It stops working every hour.",["No, I bought it yesterday.","Because I like Mondays."],"男：新しいノートパソコンを買おうかなと思ってるんだ。 女：どうして？ 古いのはこわれたの？","Is ～ broken?（こわれたの？）には、Yes と、くわしい理由で答えよう。",{audio:[M("I'm thinking of buying a new laptop."),F("Why? Is your old one broken?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-36",K.l1,"","By air, please. It's urgent.",["Yes, it's a package.","To America."],"女：この荷物をアメリカに送りたいのですが。 男：航空便と船便のどちらになさいますか？","A or B? には、どちらかをえらんで答える。urgent＝急ぎの。",{audio:[F("I need to send this package to America."),M("Would you like to send it by air or by ship?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-37",K.l1,"","I was nervous at first, but I enjoyed it.",["It was a big stage.","Yes, I won the contest."],"男：スピーチコンテストの優勝、おめでとう！ 女：ありがとう。たくさん練習したの。 男：ステージの上ではどんな気持ちだった？","How did you feel? は気持ちをたずねる質問。気持ちを答えるよ。",{audio:[M("Congratulations on winning the speech contest!"),F("Thank you. I practiced a lot."),M("How did you feel on the stage?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-38",K.l1,"","Yes. I need three books for my report.",["No, it closes at five.","I borrowed it yesterday."],"女：今日、図書館は何時にしまりますか？ 男：5時です。本をかりる必要がありますか？","Do you need ～?（～がいりますか？）には、Yes と、くわしい内容で答えよう。",{audio:[F("What time does the library close today?"),M("At five o'clock. Do you need to borrow some books?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-39",K.l1,"","For about three days.",["Three times a day.","At the hospital."],"男：お医者さんに診てもらいたいです。ひどいせきが出るんです。 女：どのくらいの間、続いていますか？","How long have you ～? は『どのくらいの間？』。期間を答えるよ。",{audio:[M("I'd like to see a doctor. I have a bad cough."),F("How long have you had it?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"}),
+ mc("l1-40",K.l1,"","She's three years old.",["She's in the garden.","She likes fish."],"女：ペットは飼っている？ 男：うん、モモっていう名前のねこがいるよ。 女：何歳なの？","How old ～? は年れいをたずねる質問。",{audio:[F("Do you have any pets?"),M("Yes, I have a cat named Momo."),F("How old is she?")],prompt:"会話を聞いて、さいごの文への返事をえらぼう。"})
+]);
+
+D.l3=D.l3.concat([
+ mc("p7",K.l3,"What does Ben want to do next week?","Show his pictures to his friends.",["Buy a new camera.","Go to the park."],"ベンは写真をとるのが好き。来週、学校の友だちに写真を見せたいと思っている。","next week（来週）のあとの want to ～ に注目。写真を友だちに見せたいんだね。",{audio:[N("Ben likes to take pictures. He got a new camera for his birthday last month. On weekends, he goes to the park near his house and takes pictures of flowers. He wants to show his pictures to his friends at school next week."),N("Question. What does Ben want to do next week?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p8",K.l3,"What does Anna do before the shop opens?","She cleans the floor.",["She helps customers.","She goes to a cafe."],"アンナは土曜日に花屋で働く。開店前の8時30分に来て、ゆかをそうじする。","『開店前（before the shop opens）』にしていることを聞かれているよ。8時30分に来て、ゆかをそうじするんだね。",{audio:[N("Anna works at a flower shop on Saturdays. The shop opens at nine, but she arrives at eight thirty to clean the floor. When customers come, she helps them choose flowers. After work, she usually goes to a cafe with her friend."),N("Question. What does Anna do before the shop opens?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p9",K.l3,"How long did Kenji wait?","About forty minutes.",["About fourteen minutes.","About four hours."],"ケンジは人気のラーメン店に行ったが、長い行列ができていた。40分待って、ついに食べることができた。","数字の聞き分けに注意。forty（40）と fourteen（14）はにているよ。forty は前の『フォー』が強く、fourteen はうしろの『ティーン』が強く聞こえるよ。",{audio:[N("Kenji wanted to eat at a popular ramen shop. But when he got there, a long line was already waiting outside. He thought about going home, but he decided to wait. After forty minutes, he finally ate the ramen, and it was the best he had ever had."),N("Question. How long did Kenji wait?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p10",K.l3,"What did the speaker's mother do at the camp?","She cooked curry.",["She made a fire.","She saw a shooting star."],"家族でキャンプに行った。お父さんが火をおこし、お母さんがカレーを作り、妹が流れ星を見た。","お父さんは fire、お母さんは curry、妹は shooting star。だれが何をしたか、聞き分けよう。",{audio:[N("My family went camping last weekend. We put up our tent near a lake. My father made a fire, and my mother cooked curry. At night, we looked at the stars, and my little sister saw a shooting star."),N("Question. What did the speaker's mother do at the camp?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p11",K.l3,"What does Mr. Kato do on his days off?","He goes fishing with his son.",["He drives a bus.","He meets many people."],"カトウさんはバスの運転手。休みの日は、むすこさんと釣りを楽しむ。","days off＝休みの日。休みの日は、むすこさんと釣りを楽しむよ。",{audio:[N("Mr. Kato is a bus driver. He starts work at five in the morning. He likes his job because he can meet many kind people. On his days off, he enjoys fishing with his son."),N("Question. What does Mr. Kato do on his days off?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p12",K.l3,"What is Yuki going to do on sports day?","Run in the relay.",["Watch the games.","Make a team."],"ユキの学校では10月に運動会がある。ユキはリレーに出る予定で、2週間毎朝練習してきた。","『is going to run in the relay（リレーで走る予定）』と言っているよ。2週間の練習は、これまでにやったことだね。",{audio:[N("Yuki's school has a big sports day every October. This year, Yuki is going to run in the relay. She has practiced every morning for two weeks. She hopes her class will win, but she says that doing her best is more important."),N("Question. What is Yuki going to do on sports day?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p13",K.l3,"What should the passengers do now?","Wait in the lounge.",["Go to Gate 10 and leave.","Check in again."],"シドニー行き52便は、霧のため1時間おくれる。乗客はラウンジで待つように言われている。","Please のあとの指示に注目。Please wait in the lounge. と言っているよ。Gate 10 は飲み物をもらえる場所だね。",{audio:[N("This is the announcement for passengers on Flight 52 to Sydney. Because of heavy fog, the flight will leave one hour late. Please wait in the lounge. Free drinks are available at the counter near Gate 10."),N("Question. What should the passengers do now?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p14",K.l3,"What time does the penguin show begin?","At one o'clock.",["At eleven o'clock.","At twelve o'clock."],"動物園のショーは、ゾウが11時、ペンギンが1時に始まる。","ゾウのショーが eleven（11時）、ペンギンのショーが one（1時）。どちらの動物かを聞きわけよう。",{audio:[N("Welcome to the City Zoo. The elephant show begins at eleven, and the penguin show begins at one. Lunch is available at the restaurant near the main gate. Please do not give food to the animals."),N("Question. What time does the penguin show begin?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p15",K.l3,"What was wrong with Sara's cookies?","They were not sweet.",["They were too hot.","They were burned."],"サラは初めてクッキーを作ったが、さとうを入れ忘れたので、甘くなかった。","『forgot to add sugar（さとうを入れ忘れた）』→『甘くなかった』と、つながるよ。",{audio:[N("Last night, Sara tried to bake cookies for the first time. She followed the recipe, but she forgot to add sugar. The cookies didn't taste sweet. Her brother laughed, but he ate three of them anyway."),N("Question. What was wrong with Sara's cookies?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p16",K.l3,"What is Tom doing for the project?","Collecting pictures of sea animals.",["Writing the report.","Showing it to the class."],"トムとリサは海についての学校の課題をしている。トムは写真を集め、リサは報告書を書く。","Tom は pictures、Lisa は report。だれが何をするか、きちんと聞こう。",{audio:[N("Tom and Lisa are classmates. They are working on a school project about the ocean. Tom is collecting pictures of sea animals, and Lisa is writing the report. They will show the project to the class on Thursday."),N("Question. What is Tom doing for the project?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p17",K.l3,"Why did the speaker take the bus today?","Because the speaker had a heavy box.",["Because it was raining.","Because the speaker was late."],"いつもは歩いて学校へ行くが、今日は美術の授業用の重い箱があったので、バスに乗った。","because I had a heavy box（重い箱があったから）が理由だよ。",{audio:[N("I usually walk to school, but today I took the bus because I had a heavy box for my art class. The bus was very crowded, and I couldn't sit down. I was glad when I got to school."),N("Question. Why did the speaker take the bus today?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p18",K.l3,"What does the bakery give to every customer?","A small free cookie.",["A cake.","Fresh bread."],"家の近くに新しいパン屋ができた。パン、ケーキ、クッキーを売っていて、お客さん全員に小さなクッキーをくれる。","gives a small free cookie to every customer（お客さん全員に小さなクッキーをくれる）と言っているよ。",{audio:[N("A new bakery opened near my house yesterday. It sells bread, cakes, and cookies. The bread is fresh every morning, and the shop gives a small free cookie to every customer. I'm going to go there again tomorrow."),N("Question. What does the bakery give to every customer?")],prompt:"短い話を聞いて、質問にこたえよう。"})
+]);
+
+D.l3=D.l3.concat([
+ mc("p19",K.l3,"How long will the Whites stay in Japan?","For ten days.",["For one month.","For two weeks."],"ホワイト夫妻はカナダに住んでいる。来月、日本にいる娘のエミリーを10日間たずねる。","ten days（10日間）。next month（来月）は行く時期で、いる期間ではないよ。",{audio:[N("Mr. and Mrs. White live in Canada. Their daughter, Emily, is studying in Japan. Next month, they will visit her for ten days. They want to see Kyoto and try Japanese food."),N("Question. How long will the Whites stay in Japan?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p20",K.l3,"What did Nick do after the coach spoke to him?","He practiced running every day.",["He quit basketball.","He grew taller."],"ニックはバスケットボールが好きだが、背が高くない。コーチに足が速いと言われてから、毎日走る練習をして、今ではチームで上手な選手のひとりだ。","『After that（そのあと）』のあとに注目。毎日走る練習をしたんだね。",{audio:[N("Nick likes basketball, but he is not tall. His coach told him that he was fast and that this was his strength. After that, Nick practiced running every day. Now he is one of the best players on his team."),N("Question. What did Nick do after the coach spoke to him?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p21",K.l3,"How many songs can Hana play now?","Three.",["Thirteen.","Thirty."],"ハナはギターを習っている。はじめは指がいたかったが、毎日少しずつ練習して、今は3曲ひける。","数字の聞き分け。three（3）、thirteen（13）、thirty（30）を区別しよう。thirteen はうしろの『ティーン』、thirty は前の『サー』が強く聞こえるよ。",{audio:[N("Hana is learning to play the guitar. At first, her fingers hurt, and she wanted to quit. But her teacher told her to practice a little every day. Now Hana can play three songs."),N("Question. How many songs can Hana play now?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p22",K.l3,"Why does the town expect more people this year?","Because the festival will be on a Saturday.",["Because the river will be bigger.","Because it will be in July."],"町では毎年8月に川の祭りがある。今年は土曜日なので、去年より多くの人が来ると思われている。","because it will be on a Saturday（土曜日にあるから）が理由だよ。",{audio:[N("Our town has a river festival every August. People put small lights on the river, and many families come to see them. Last year, many people came. This year, the town expects even more because it will be on a Saturday."),N("Question. Why does the town expect more people this year?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p23",K.l3,"What did Mika's grandmother talk about last week?","A big pumpkin.",["A small village.","A new phone."],"ミカは毎週日曜日におばあちゃんに電話する。先週、おばあちゃんは庭でとれた大きなかぼちゃの話をした。","last week（先週）の話題は、a big pumpkin from her garden（庭でとれた大きなかぼちゃ）。",{audio:[N("Mika's grandmother lives alone in a small village. Every Sunday, Mika calls her and talks for about thirty minutes. Last week, her grandmother told her about a big pumpkin from her garden. Mika laughed and said she wanted to see it."),N("Question. What did Mika's grandmother talk about last week?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p24",K.l3,"When will the school library open again?","On Thursday.",["On Monday.","On Friday."],"学校の図書館は、月曜日から水曜日まで工事で閉まる。木曜日にまた開く。","月曜から水曜がお休み。open again on Thursday（木曜日にまた開く）。Friday は『本を返す日』だよ。",{audio:[N("The school library will be closed for repairs from Monday to Wednesday. Students can borrow books at the city library during that time. The school library will open again on Thursday. Please return all school books by Friday."),N("Question. When will the school library open again?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p25",K.l3,"How did Daisuke get more money?","By washing his father's car.",["By selling his old games.","By asking his mother."],"ダイスケは6,000円のゲームがほしかったが、4,000円しかなかった。毎週末、お父さんの車を洗ってお金をもらい、4週間でお金がたまった。","help his father wash the car（お父さんの車を洗う手伝い）をして、500円ずつもらったよ。",{audio:[N("Daisuke wanted to buy a new video game, but it cost six thousand yen. He had only four thousand yen, so he started to help his father wash the car every weekend. His father gave him five hundred yen each time. After four weeks, Daisuke had enough money."),N("Question. How did Daisuke get more money?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p26",K.l3,"Why does the speaker get sleepy on work days?","Because the speaker gets up early for school.",["Because the work is hard.","Because the shop is very noisy."],"コンビニでアルバイトをしている。火曜日と金曜日の夕方に働く。仕事はきつくないが、朝早く学校のために起きるので、その日はとてもねむくなる。","『The work is not hard, but ～』と、but のあとが理由だよ。",{audio:[N("I have a part-time job at a convenience store. I work from five to nine in the evening on Tuesdays and Fridays. The work is not hard, but I get very sleepy on those days because I get up early for school."),N("Question. Why does the speaker get sleepy on work days?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p27",K.l3,"How does Emma try to improve her kanji?","She reads a short article every morning.",["She writes letters to friends.","She takes a class every night."],"エマはアメリカ人で、日本に3年住んでいる。漢字を読むのが苦手なので、毎朝、日本語の短い記事を1つ読んでいる。","To improve（上達するために）のあとに注目。毎朝、短い記事を読むよ。",{audio:[N("Emma is American, but she has lived in Japan for three years. She speaks Japanese well, but she still has trouble reading kanji. To improve, she reads one short article in Japanese every morning."),N("Question. How does Emma try to improve her kanji?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p28",K.l3,"What should the students bring?","A lunch box and a drink.",["A rain coat and an umbrella.","Some money."],"明日は天気がよいので、クラスは外で昼ごはんを食べる。お弁当と飲み物を持ってくる。雨の場合は教室で食べる。","Please bring のあとに注目。lunch box と drink を持ってくるよ。",{audio:[N("The weather will be nice tomorrow, so our class is going to have lunch outside. Please bring a lunch box and a drink. If it rains, we will eat in the classroom. We will meet at the school gate at eleven forty."),N("Question. What should the students bring?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p29",K.l3,"How does James save money?","He walks to school and brings lunch from home.",["He sells his old bike.","He works at a restaurant."],"ジェームズはブラジルの友だちに会いに行くためにお金をためている。バスに乗らず歩いて学校へ行き、家から昼ごはんを持っていく。","instead of ～（～のかわりに）。バスのかわりに歩き、お店で買うかわりにお弁当を持ってくるんだね。",{audio:[N("James is saving money to visit his friend in Brazil. He walks to school instead of taking the bus, and he brings lunch from home. So far, he has saved about half of the money he needs."),N("Question. How does James save money?")],prompt:"短い話を聞いて、質問にこたえよう。"}),
+ mc("p30",K.l3,"What will happen tomorrow?","All schools will be closed.",["The storm will begin.","Everyone will go to work."],"今夜、大きなあらしが来る。みんな家にいるように言われていて、明日は学校がすべて休みになる。あらしは明日の午後までにはおわる見こみ。","『tomorrow（明日）』のことを聞かれているよ。All schools will be closed tomorrow（学校はすべて休み）。あらしが来るのは今夜だね。",{audio:[N("A big storm is coming to our city tonight. The wind will be very strong, so the city has asked everyone to stay home. All schools will be closed tomorrow. The storm should be over by tomorrow afternoon."),N("Question. What will happen tomorrow?")],prompt:"短い話を聞いて、質問にこたえよう。"})
+]);
+
+var ALL=[];Object.keys(D).forEach(function(k){ALL=ALL.concat(D[k]);});
+var BYID={};ALL.forEach(function(q){BYID[q.id]=q;});
+
+/* ---------- modes ---------- */
+var MODES=[
+ {g:"リーディング",id:"vocab",name:"語い",tag:"大問1",desc:"意味に合う言葉をえらぼう",n:10,timer:true,pool:function(){return D.vocab;}},
+ {g:"リーディング",id:"grammar",name:"文法",tag:"大問1",desc:"正しい形をえらぼう",n:10,timer:true,pool:function(){return D.grammar;}},
+ {g:"リーディング",id:"idiom",name:"熟語",tag:"大問1",desc:"セットで覚える言い方",n:10,timer:true,pool:function(){return D.idiom;}},
+ {g:"会話・ライティングの準備",id:"conv",name:"会話の返事",tag:"リスニング対策",desc:"会話にぴったりの返事をえらぼう",n:10,timer:true,pool:function(){return D.conv;}},
+ {g:"会話・ライティングの準備",id:"order",name:"語順パズル",tag:"ライティング対策",desc:"ことばをならべて英文を作ろう",n:8,timer:false,pool:function(){return D.order;}},
+ {g:"リスニング",id:"l1",name:"リスニング第1部",tag:"音声",desc:"会話を聞いて、返事をえらぼう",n:8,timer:false,pool:function(){return D.l1;}},
+ {g:"リスニング",id:"l3",name:"リスニング第3部",tag:"音声",desc:"短い話を聞いて、質問にこたえよう",n:6,timer:false,pool:function(){return D.l3;}},
+ {g:"しあげ",id:"mix",name:"ミックス10問",tag:"ぜんぶ",desc:"読む・書く問題をまぜてチャレンジ",n:10,timer:true,strong:true,pool:function(){return D.vocab.concat(D.grammar,D.idiom,D.conv,D.order);}},
+ {g:"しあげ",id:"review",name:"まちがいノート",tag:"ふくしゅう",desc:"まちがえた問題だけ、もう一度",n:10,timer:true,nobest:true,pool:function(){return store.wrong.map(function(id){return BYID[id];}).filter(Boolean);}}
+];
+
+/* ---------- storage (per-device convenience, safe if unavailable) ---------- */
+var store={best:{},total:0,right:0,wrong:[],seen:{}};
+var SK="pre2-mark-drill-v1";
+function load(){try{var s=JSON.parse(localStorage.getItem(SK)||"null");if(s&&typeof s==="object"){store.best=s.best||{};store.total=s.total||0;store.right=s.right||0;store.wrong=Array.isArray(s.wrong)?s.wrong:[];store.seen=(s.seen&&typeof s.seen==="object")?s.seen:{};}}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(store));}catch(e){}}
+function record(q,ok){
+  store.total++;if(ok)store.right++;
+  var k=store.wrong.indexOf(q.id);
+  if(ok){if(k>=0)store.wrong.splice(k,1);}
+  else if(k<0){store.wrong.push(q.id);if(store.wrong.length>60)store.wrong.shift();}
+  save();
+}
+
+/* ---------- audio (browser speech) ---------- */
+var tts=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+var voiceCache=null,playToken=0,playing=false;
+if(tts){try{speechSynthesis.onvoiceschanged=function(){voiceCache=null;};}catch(e){}}
+function pickVoice(){
+  if(voiceCache)return voiceCache;
+  try{
+    var vs=speechSynthesis.getVoices().filter(function(v){return /^en[-_]US/i.test(v.lang);});
+    voiceCache=vs.filter(function(v){return /google|samantha|aria|jenny|zira/i.test(v.name);})[0]||vs[0]||null;
+  }catch(e){}
+  return voiceCache;
+}
+function setPlayUI(on){
+  playing=on;
+  var pi=$("#pi"),pl=$("#pl");
+  if(pi)pi.textContent=on?"■":"▶";
+  if(pl)pl.textContent=on?"とめる":"音声をきく";
+}
+function stopAudio(){
+  playToken++;
+  if(tts){try{speechSynthesis.cancel();}catch(e){}}
+  setPlayUI(false);
+}
+function playLines(lines){
+  if(!tts)return;
+  try{speechSynthesis.cancel();}catch(e){}
+  var my=++playToken;setPlayUI(true);
+  var i=0;
+  var next=function(){
+    if(my!==playToken)return;
+    if(i>=lines.length){setPlayUI(false);return;}
+    var L=lines[i++];
+    var u=new SpeechSynthesisUtterance(L.t);
+    u.lang="en-US";u.rate=0.92;u.pitch=L.w==="m"?0.7:(L.w==="f"?1.15:1);
+    var v=pickVoice();if(v)u.voice=v;
+    u.onend=function(){setTimeout(next,350);};
+    u.onerror=function(){if(my===playToken)setPlayUI(false);};
+    speechSynthesis.speak(u);
+  };
+  next();
+}
+
+/* ---------- screens ---------- */
+function show(id){
+  ["home","quiz","result"].forEach(function(s){$("#"+s).hidden=(s!==id);});
+  if(id!=="quiz"){$("#nextbar").hidden=true;stopTimer();stopAudio();}
+  try{window.scrollTo(0,0);}catch(e){}
+}
+function renderHome(){
+  $("#stTotal").textContent=store.total;
+  $("#stRate").textContent=store.total?Math.round(store.right/store.total*100)+"%":"—";
+  $("#stWrong").textContent=store.wrong.length;
+  var html="",last="";
+  MODES.forEach(function(m){
+    if(m.g!==last){html+=(last?"</div>":"")+'<h2 class="grp">'+esc(m.g)+'</h2><div class="modes">';last=m.g;}
+    var pool=m.pool(),n=Math.min(m.n,pool.length),dis=!pool.length;
+    var b=store.best[m.id];
+    var badge=dis?"":(b?"ベスト "+b.r+"/"+b.n:"はじめて");
+    var desc=dis?"まちがえた問題が、ここにたまります":m.desc+"（"+(pool.length>n?pool.length+"問から"+n+"問":n+"問")+"）";
+    html+='<button class="mode'+(m.strong?" strong":"")+'" type="button" data-mode="'+m.id+'"'+(dis?" disabled":"")+'>'
+      +'<span class="mode-main"><span class="mode-name">'+esc(m.name)+'</span><span class="mode-tag">'+esc(m.tag)+'</span></span>'
+      +'<span class="mode-desc">'+esc(desc)+'</span><span class="mode-best">'+badge+'</span></button>';
+  });
+  html+="</div>";
+  $("#modes").innerHTML=html;
+}
+
+/* ---------- session ---------- */
+var S=null,tmr=null;
+function pickList(m,pool){
+  if(m.nobest)return shuffle(pool.slice()).slice(0,m.n);
+  var fresh=pool.filter(function(q){return !store.seen[q.id];});
+  var list;
+  if(fresh.length>=m.n){
+    list=shuffle(fresh).slice(0,m.n);
+  }else{
+    var used=shuffle(pool.filter(function(q){return store.seen[q.id];}));
+    list=shuffle(fresh).concat(used).slice(0,m.n);
+    pool.forEach(function(q){delete store.seen[q.id];});
+  }
+  list.forEach(function(q){store.seen[q.id]=1;});
+  save();
+  return shuffle(list.slice());
+}
+function startMode(id){
+  var m=MODES.filter(function(x){return x.id===id;})[0];if(!m)return;
+  var pool=m.pool();if(!pool.length)return;
+  begin(m,pickList(m,pool));
+}
+function begin(m,list){
+  S={mode:m,list:list,i:0,pts:0,combo:0,maxCombo:0,right:0,res:[],answered:false,armed:false,t0:0,cur:null,ch:[],bank:[],slot:[]};
+  $("#backBtn").textContent="← やめる";
+  show("quiz");renderQ();
+}
+function fmtQ(q,filled){
+  var ans=q.c?q.c[0]:"";
+  return q.q.split("\n").map(function(line){
+    var m=line.match(/^([AB]):\s*(.*)$/),spk="",t=line;
+    if(m){spk='<span class="spk">'+m[1]+'</span>';t=m[2];}
+    var e=esc(t).replace(/\(\s*\)/g,filled?'<span class="blank filled">'+esc(ans)+'</span>':'<span class="blank"></span>');
+    return '<div class="line">'+spk+'<span class="lt">'+e+'</span></div>';
+  }).join("");
+}
+function scriptHTML(q){
+  return q.audio.map(function(L){
+    var who=L.w==="f"?"女":(L.w==="m"?"男":"");
+    return '<p class="sl"><b>'+who+'</b>'+esc(L.t)+'</p>';
+  }).join("");
+}
+function marksHTML(){
+  return S.list.map(function(q,k){
+    var r=S.res[k];
+    var cls=r?(r.ok?"ok":"ng"):(k===S.i?"cur":"");
+    return '<i class="mk '+cls+'"></i>';
+  }).join("");
+}
+function updateTop(){
+  $("#pos").textContent=Math.min(S.i+1,S.list.length)+" / "+S.list.length;
+  $("#pts").textContent=S.pts+" pt";
+  var c=$("#combo");
+  if(S.combo>=2){c.hidden=false;c.textContent="れんぞく "+S.combo;}else{c.hidden=true;}
+  $("#marks").innerHTML=marksHTML();
+}
+function stopTimer(){if(tmr){clearInterval(tmr);tmr=null;}}
+function startTimer(){
+  stopTimer();
+  var use=S.mode.timer&&S.cur.type==="mc"&&!S.cur.audio;
+  $("#tbar").hidden=!use;
+  if(!use)return;
+  var bar=$("#tfill");bar.style.width="0%";bar.classList.remove("late");
+  tmr=setInterval(function(){
+    var p=Math.min(100,(Date.now()-S.t0)/300);
+    bar.style.width=p+"%";
+    if(p>=100)bar.classList.add("late");
+  },100);
+}
+function renderQ(){
+  var q=S.list[S.i];
+  S.cur=q;S.answered=false;
+  $("#nextbar").hidden=true;
+  stopAudio();
+  updateTop();
+  var h='<div class="qcard"><span class="kind">'+esc(q.kind)+'</span>';
+  if(q.prompt)h+='<p class="prompt">'+esc(q.prompt)+'</p>';
+  if(q.type==="order")h+='<p class="jp-hint">'+esc(q.jp)+'</p>';
+  if(q.q)h+='<div class="qtext" id="qtext">'+fmtQ(q,false)+'</div>';
+  if(q.audio){
+    if(tts){
+      h+='<div class="audio"><button class="play" id="playBtn" type="button"><span class="pi" id="pi">▶</span><span id="pl">音声をきく</span></button>'
+        +'<button class="btn sm" id="scriptBtn" type="button">台本を見る</button></div>';
+    }else{
+      h+='<p class="note">この端末では音声が使えないみたい。「台本を見る」で読んで練習しよう。</p>'
+        +'<div><button class="btn sm" id="scriptBtn" type="button">台本を見る</button></div>';
+    }
+    h+='<div class="script" id="scriptBox" hidden>'+scriptHTML(q)+'</div>';
+  }
+  h+='</div>';
+  if(q.type==="mc"){
+    S.ch=shuffle(q.c.map(function(t,i){return {t:t,ok:i===0};}));
+    h+='<div class="choices" role="group" aria-label="こたえ">'+S.ch.map(function(c,i){
+      return '<button class="choice" type="button" data-i="'+i+'"><span class="bub">'+(i+1)+'</span><span class="ctext">'+esc(c.t)+'</span></button>';
+    }).join("")+'</div>';
+  }else{
+    var bank=q.tokens.map(function(t,i){return {i:i,t:t};});
+    var tries=0;
+    do{shuffle(bank);tries++;}while(tries<10&&bank.map(function(o){return o.t;}).join(" ")===q.tokens.join(" "));
+    S.bank=bank;S.slot=[];
+    h+='<div class="slots" id="slots" aria-label="こたえ"></div><div class="bank" id="bank"></div>'
+      +'<div class="order-actions"><button class="btn" id="clrBtn" type="button">やり直す</button><button class="btn pri" id="chkBtn" type="button">チェック</button></div>';
+  }
+  h+='<div id="fb" role="status" aria-live="polite"></div>';
+  $("#qbody").innerHTML=h;
+  if(q.type==="order")drawOrder();
+  S.t0=Date.now();
+  startTimer();
+}
+function drawOrder(){
+  $("#slots").innerHTML=S.slot.length?S.slot.map(function(o){return '<button class="chip in" type="button" data-act="back" data-i="'+o.i+'">'+esc(o.t)+'</button>';}).join(""):'<span class="slots-empty">ここにことばをならべよう</span>';
+  $("#bank").innerHTML=S.bank.map(function(o){return '<button class="chip" type="button" data-act="take" data-i="'+o.i+'">'+esc(o.t)+'</button>';}).join("");
+  $("#chkBtn").disabled=S.bank.length>0;
+  $("#clrBtn").disabled=S.slot.length===0;
+}
+function takeChip(i){
+  if(S.answered)return;
+  var k=S.bank.findIndex(function(o){return o.i===i;});if(k<0)return;
+  S.slot.push(S.bank.splice(k,1)[0]);drawOrder();
+}
+function backChip(i){
+  if(S.answered)return;
+  var k=S.slot.findIndex(function(o){return o.i===i;});if(k<0)return;
+  S.bank.push(S.slot.splice(k,1)[0]);drawOrder();
+}
+function checkOrder(){
+  if(S.answered||S.bank.length)return;
+  var q=S.cur;S.answered=true;stopTimer();
+  var got=S.slot.map(function(o){return o.t;}).join(" ");
+  var ok=got===q.tokens.join(" ")||q.alts.indexOf(got)>=0;
+  $("#slots").classList.add(ok?"ok":"ng");
+  document.querySelector(".order-actions").hidden=true;
+  Array.prototype.forEach.call(document.querySelectorAll("#slots .chip"),function(b){b.disabled=true;});
+  settle(ok);
+}
+function choose(i){
+  if(S.answered)return;
+  var q=S.cur,c=S.ch[i];
+  S.answered=true;stopTimer();
+  var btns=Array.prototype.slice.call(document.querySelectorAll(".choice"));
+  btns.forEach(function(b,k){
+    b.disabled=true;
+    var bub=b.querySelector(".bub");
+    if(S.ch[k].ok){b.classList.add("is-ok");bub.textContent="✓";}
+    else if(k===i){b.classList.add("is-ng");bub.textContent="✕";}
+    else{b.classList.add("dim");}
+  });
+  if(q.fill)$("#qtext").innerHTML=fmtQ(q,true);
+  settle(c.ok);
+}
+function settle(ok){
+  var q=S.cur,secs=(Date.now()-S.t0)/1000,gain=0;
+  if(ok){
+    S.right++;S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);
+    var bonus=0;
+    if(!q.audio){
+      if(q.type==="order")bonus=secs<=30?30:(secs<=60?15:0);
+      else bonus=secs<=10?30:(secs<=20?15:0);
+    }
+    gain=100+Math.min(S.combo-1,5)*20+bonus;
+    S.pts+=gain;
+  }else{S.combo=0;}
+  S.res.push({q:q,ok:ok});
+  record(q,ok);
+  updateTop();
+  if(q.audio){var sb=$("#scriptBox");if(sb)sb.hidden=false;var sbt=$("#scriptBtn");if(sbt)sbt.hidden=true;stopAudio();}
+  var ans=q.type==="order"?q.tokens.join(" ")+q.end:q.c[0];
+  var h='<div class="fb '+(ok?"ok":"ng")+'"><p class="fb-h"><span>'+(ok?"せいかい！":"おしい！")+'</span>'+(ok?'<span class="gain">+'+gain+' pt</span>':"")+'</p>';
+  if(!ok)h+='<p class="ans">せいかいは <b>'+esc(ans)+'</b></p>';
+  h+='<p class="why">'+esc(q.why)+'</p>';
+  if(q.ja)h+='<p class="ja"><span>やく</span>'+esc(q.ja)+'</p>';
+  h+='</div>';
+  $("#fb").innerHTML=h;
+  $("#nextBtn").textContent=(S.i===S.list.length-1)?"けっかを見る":"つぎへ";
+  $("#nextbar").hidden=false;
+  setTimeout(function(){try{$("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}},60);
+}
+function next(){
+  if(!S||!S.answered)return;
+  S.i++;
+  if(S.i>=S.list.length)showResult();else renderQ();
+}
+
+/* ---------- result ---------- */
+function plain(q){
+  if(q.type==="order")return q.jp;
+  if(q.audio&&q.q)return q.q;
+  if(q.audio)return q.audio.map(function(L){return L.t;}).join(" / ");
+  return q.q.replace(/\n/g," / ").replace(/\(\s*\)/,"["+q.c[0]+"]");
+}
+function showResult(){
+  stopTimer();
+  var n=S.list.length,r=S.right,pct=Math.round(r/n*100);
+  if(!S.mode.nobest){
+    var b=store.best[S.mode.id];
+    if(!b||r/n>b.r/b.n)store.best[S.mode.id]={r:r,n:n};
+    save();
+  }
+  var msg=pct>=90?"かんぺき！本番でもこの調子でいこう。":(pct>=60?"合格ラインのめやす（6割）をこえたよ！":"あと少し！かいせつを読んで、もう1回やってみよう。");
+  var wr=S.res.filter(function(x){return !x.ok;});
+  var h='<p class="eyebrow">'+esc(S.mode.name)+'のけっか</p>'
+    +'<div class="r-score">'+r+'<small> / '+n+'</small></div>'
+    +'<p class="r-msg">'+msg+'</p>'
+    +'<p class="r-sub">ごうけい '+S.pts+' pt ・ さいだい れんぞく '+S.maxCombo+'</p>'
+    +'<div class="meter" role="img" aria-label="せいかい率 '+pct+'パーセント"><div class="meter-fill'+(pct>=60?" pass":"")+'" style="width:'+pct+'%"></div><div class="meter-line"></div><div class="meter-lab">合格ラインのめやす 6割</div></div>'
+    +'<div class="r-actions"><button class="btn pri" id="againBtn" type="button">もう1回</button>'
+    +(wr.length?'<button class="btn" id="retryBtn" type="button">まちがえた'+wr.length+'問だけやり直す</button>':"")
+    +'<button class="btn" id="homeBtn" type="button">ホームにもどる</button></div>';
+  if(wr.length){
+    h+='<p class="rw-h">まちがえた問題</p><div class="rws">'+wr.map(function(x){
+      var q=x.q,ans=q.type==="order"?q.tokens.join(" ")+q.end:q.c[0];
+      return '<div class="rw"><span class="rw-k">'+esc(q.kind)+'</span><p class="rw-q">'+esc(plain(q))+'</p>'
+        +'<p class="rw-a">せいかい：<b>'+esc(ans)+'</b></p><p class="rw-w">'+esc(q.why)+'</p></div>';
+    }).join("")+'</div>';
+  }
+  $("#result").innerHTML=h;
+  show("result");
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.classList.contains("mode")){startMode(t.dataset.mode);return;}
+  if(t.classList.contains("choice")){choose(+t.dataset.i);return;}
+  if(t.dataset.act==="take"){takeChip(+t.dataset.i);return;}
+  if(t.dataset.act==="back"){backChip(+t.dataset.i);return;}
+  switch(t.id){
+    case "chkBtn":checkOrder();break;
+    case "clrBtn":if(!S.answered){S.bank=S.bank.concat(S.slot);S.slot=[];drawOrder();}break;
+    case "nextBtn":next();break;
+    case "playBtn":if(playing)stopAudio();else playLines(S.cur.audio);break;
+    case "scriptBtn":var sb=$("#scriptBox");if(sb){sb.hidden=!sb.hidden;t.textContent=sb.hidden?"台本を見る":"台本をとじる";}break;
+    case "backBtn":
+      if(S.armed){S=null;renderHome();show("home");}
+      else{S.armed=true;t.textContent="もう一度おすと終了";setTimeout(function(){if(S){S.armed=false;t.textContent="← やめる";}},3000);}
+      break;
+    case "againBtn":startMode(S.mode.id);break;
+    case "retryBtn":
+      var list=S.res.filter(function(x){return !x.ok;}).map(function(x){return x.q;});
+      begin({id:"retry",name:"やり直し",timer:S.mode.timer,nobest:true},shuffle(list));
+      break;
+    case "homeBtn":renderHome();show("home");break;
+  }
+});
+
+load();renderHome();show("home");
+})();
+</script>
