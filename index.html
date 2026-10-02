@@ -787,7 +787,7 @@ function playLines(lines){
     if(i>=lines.length){setPlayUI(false);return;}
     var L=lines[i++];
     var u=new SpeechSynthesisUtterance(L.t);
-    u.lang="en-US";u.rate=0.92;u.pitch=L.w==="m"?0.7:(L.w==="f"?1.15:1);
+    u.lang="en-US";u.rate=0.7;u.pitch=L.w==="m"?0.7:(L.w==="f"?1.15:1);
     var v=pickVoice();if(v)u.voice=v;
     u.onend=function(){setTimeout(next,350);};
     u.onerror=function(){if(my===playToken)setPlayUI(false);};
